@@ -1,0 +1,11 @@
+services:
+  mongodb:
+    image: mongo:7
+    hostname: mongodb
+    container_name: todo_mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+volumes:
+  mongo_data:

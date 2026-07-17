@@ -1,0 +1,6 @@
+@Todo.Bff_HostAddress = http://localhost:5260
+
+GET {{Todo.Bff_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
