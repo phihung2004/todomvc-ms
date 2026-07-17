@@ -1,6 +1,41 @@
-@Todo.Api_HostAddress = http://localhost:5010
+@Todo.Api_HostAddress = https://localhost:7219
 
-GET {{Todo.Api_HostAddress}}/weatherforecast/
+### 1. Tạo mới một Todo Item (POST)
+# Sau khi chạy, hãy copy lấy cái "id" ở phần phản hồi trả về để test các API bên dưới
+POST {{Todo.Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "Title": "Học FluentValidation cùng ông thầy Senior"
+}
+
+###
+
+### 2. Lấy TOÀN BỘ danh sách Todo (Không truyền filter)
+GET {{Todo.Api_HostAddress}}/api/todos
 Accept: application/json
 
 ###
+
+### 3. Lấy TOÀN BỘ danh sách Todo (Truyền filter = all)
+GET {{Todo.Api_HostAddress}}/api/todos?filter=all
+Accept: application/json
+
+###
+
+### 4. Lấy danh sách Todo chưa hoàn thành (filter = active)
+GET {{Todo.Api_HostAddress}}/api/todos?filter=active
+Accept: application/json
+
+###
+
+### 5. Lấy danh sách Todo đã hoàn thành (filter = completed)
+GET {{Todo.Api_HostAddress}}/api/todos?filter=completed
+Accept: application/json
+
+###
+
+### 6. Lấy chi tiết một Todo theo ID (GET {id})
+# Thay thế chuỗi ID "6a5a9d524c66229c010ace32" bằng ID thực tế dưới DB của ông nhé!
+GET {{Todo.Api_HostAddress}}/api/todos/6a5aa56a5d46c79f30c5f28d
+Accept: application/json

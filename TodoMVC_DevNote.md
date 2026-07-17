@@ -142,7 +142,7 @@ reflect:
 
 
 
-Làm riel:
+#### **Làm riel:**
 
 
 
@@ -150,7 +150,19 @@ Làm riel:
 * appsetting tạo connectionString vào trong MongoDB:"mongodb://localhost:27017"
 * vào prgram cs, tạo builder, dùng builder.Configuration để lấy chuỗi connect với DB
 * DB.InitAsync để có thể tạo 1 cái DB vào kết nối mongoDB
-* cứ chạy vài cái methoc của DB để test đã kết nối lại vào DB hay chưa.
+* cứ chạy vài cái method của DB để test đã kết nối lại vào DB hay chưa.
+
+
+
+
+
+##### Mapping + Test
+
+1. Mapp bằng AutoMapper rồi, giờ tìm cách để test viết 1 cái Minimal API dùng Entity trước, sau đó dùng DTO
+2. Sẽ viết API trong program.cs trước, sau đó thì dừng Carter coi nó như lào.
+3. sau đó thì taopj validate rồi test API mới viết.
+
+
 
 ### ============================================================ Todo.Bff ===============================
 

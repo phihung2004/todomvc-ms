@@ -42,9 +42,12 @@
 
 
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Todo.Api.Entities;
 
+
+// Khai báo builder, đầu tiên và nobrainer là nổ cái này
 var builder = WebApplication.CreateBuilder(args);
 
 var defaultConnectionString =
@@ -54,15 +57,73 @@ var defaultConnectionString =
 
 var settings = MongoClientSettings.FromConnectionString(defaultConnectionString);
 
+// Thêm service cho builder bên dưới
+builder.Services.AddOpenApi();
+
+
+
+// sau khi add service xong hết thì mới .Build()
+var app = builder.Build();
+
+// Méo biết, trên doc chỉ vậy
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+//============================ API Section ======================
+
+var todoGroup = app.MapGroup("/api/todos");
+
+todoGroup.MapGet("", async (string? filter) =>
+{
+    List<TodoItem> items = new List<TodoItem>();
+
+    if (filter == "all" || string.IsNullOrEmpty(filter))
+    {
+        // cả 2 thằng bên dưới đều có thể lây toàn bộ về hết
+        //var item = await DB.Queryable<TodoItem>().ToListAsync();
+
+        items = await DB.Find<TodoItem>().ExecuteAsync();
+    }
+    else if (filter == "active")
+    {
+        items = await DB.Queryable<TodoItem>().Where(i => i.IsCompleted == false).ToListAsync();
+        
+    }
+    else if (filter == "completed")
+    {
+        items = await DB.Queryable<TodoItem>().Where(i => i.IsCompleted == true).ToListAsync();
+    }
+
+    return Results.Ok(items);
+});
+
+todoGroup.MapGet("/{id}", async (string id) =>
+{
+    // Nếu chỉ để như vầy thì nó đúng là đã find luôn, nhưng không gán vào đâu để show ra hết
+    //await DB.Find<TodoItem>().OneAsync(id);
+
+
+    // Như dưới này thì có thằng hứng là item, rồi return lại bên dưới băng Ok(item)
+    var item = await DB.Find<TodoItem>().OneAsync(id);
+
+    return item is not null ? Results.Ok(item) : Results.NotFound() ;
+});
+
+todoGroup.MapPost("", async (TodoItem todoitem) =>
+{
+    // Ver lỏ 1 =)))
+    //await DB.SaveAsync(todoitem);
+
+    todoitem.CreateAt = DateTime.Now;
+    await DB.SaveAsync(todoitem);
+
+    return Results.Created($"/api/todos/{todoitem.ID}", todoitem);
+});
+
+//============================ API Section ======================
+
 await DB.InitAsync("todo_mongo",settings);
 
-TodoItem todoItem = new TodoItem();
-todoItem.Title = "Test todo List";
-todoItem.CreateAt = DateTime.Now;
-
-await DB.SaveAsync(todoItem);
-
-
-
-var app = builder.Build();
 app.Run();

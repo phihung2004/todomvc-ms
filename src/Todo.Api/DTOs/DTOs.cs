@@ -7,9 +7,10 @@
     //Cần ngày để mà sort
     public class TodoDto
     {
+        public string Id { get; set; }
         public string Title { get; set; }
         public bool IsCompleted { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreateAt { get; set; }
     }
 
     // Khuôn để nhận request về từ FE, chỉ nhận đúng 1 cái Title
