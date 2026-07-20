@@ -1,15 +1,15 @@
 @Todo.Api_HostAddress = https://localhost:7219
 
 ### 1. Tạo mới một Todo Item (POST)
-# Sau khi chạy, hãy copy lấy cái "id" ở phần phản hồi trả về để test các API bên dưới
+# Sau khi chạy, hãy copy lấy cái "Id" ở phần phản hồi trả về để dán vào các test bên dưới
 POST {{Todo.Api_HostAddress}}/api/todos
 Content-Type: application/json
-
 {
-  "Title": "Học FluentValidation cùng ông thầy Senior"
+  "Title":"Test tự viết file htmp để test"
 }
 
 ###
+
 
 ### 2. Lấy TOÀN BỘ danh sách Todo (Không truyền filter)
 GET {{Todo.Api_HostAddress}}/api/todos
@@ -36,6 +36,36 @@ Accept: application/json
 ###
 
 ### 6. Lấy chi tiết một Todo theo ID (GET {id})
-# Thay thế chuỗi ID "6a5a9d524c66229c010ace32" bằng ID thực tế dưới DB của ông nhé!
-GET {{Todo.Api_HostAddress}}/api/todos/6a5aa56a5d46c79f30c5f28d
+# Thay thế chuỗi ID dưới đây bằng ID thực tế ông vừa tạo ở bước 1 nhé
+GET {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
 Accept: application/json
+
+###
+
+### 7. Cập nhật (Sửa) toàn bộ Todo (PUT)
+# Thay thế chuỗi ID trên URL bằng ID thực tế dưới DB của ông
+PUT {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
+Content-Type: application/json
+
+{
+  "Title": "Học Carter module hóa cùng ông thầy Senior (Đã cập nhật)",
+  "IsCompleted": false
+}
+
+###
+
+### 8. Đảo trạng thái hoàn thành (PATCH Toggle)
+# Mỗi lần bấm Send Request, trạng thái IsCompleted dưới DB sẽ tự động lật ngược lại (true <-> false)
+PATCH {{Todo.Api_HostAddress}}/api/todos/6a5aae466d5e50b62c674070/toggle
+
+###
+
+### 9. Xóa một Todo đơn lẻ theo ID (DELETE {id})
+# Test xong nhớ đừng chạy lệnh này vội, để dành test nốt lệnh xóa hàng loạt ở dưới nha ông
+DELETE {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
+
+###
+
+### 10. Dọn sạch toàn bộ các Todo đã hoàn thành (DELETE Clear Completed)
+# Hãy bấm PATCH Toggle vài item lên trạng thái 'true' trước, sau đó chạy lệnh này để xem nó quét sạch thế nào
+DELETE {{Todo.Api_HostAddress}}/api/todos/completed

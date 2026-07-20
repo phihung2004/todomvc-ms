@@ -1,50 +1,10 @@
-//var builder = WebApplication.CreateBuilder(args);
-
-//// Add services to the container.
-//// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddOpenApi();
-
-//var app = builder.Build();
-
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.MapOpenApi();
-//}
-
-//app.UseHttpsRedirection();
-
-//var summaries = new[]
-//{
-//    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-//};
-
-//app.MapGet("/weatherforecast", () =>
-//{
-//    var forecast = Enumerable.Range(1, 5).Select(index =>
-//        new WeatherForecast
-//        (
-//            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//            Random.Shared.Next(-20, 55),
-//            summaries[Random.Shared.Next(summaries.Length)]
-//        ))
-//        .ToArray();
-//    return forecast;
-//})
-//.WithName("GetWeatherForecast");
-
-//app.Run();
-
-//internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-//{
-//    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-//}
-
-
+using AutoMapper;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
+using Todo.Api.DTOs;
 using Todo.Api.Entities;
+using Todo.Api.Mappings;
 
 
 // Khai báo builder, đầu tiên và nobrainer là nổ cái này
@@ -57,8 +17,9 @@ var defaultConnectionString =
 
 var settings = MongoClientSettings.FromConnectionString(defaultConnectionString);
 
-// Thêm service cho builder bên dưới
+// Thêm service cho builder bên dưới==================
 builder.Services.AddOpenApi();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 
@@ -75,7 +36,7 @@ if (app.Environment.IsDevelopment())
 
 var todoGroup = app.MapGroup("/api/todos");
 
-todoGroup.MapGet("", async (string? filter) =>
+todoGroup.MapGet("", async(string ? filter, IMapper mapper)  =>
 {
     List<TodoItem> items = new List<TodoItem>();
 
@@ -96,10 +57,12 @@ todoGroup.MapGet("", async (string? filter) =>
         items = await DB.Queryable<TodoItem>().Where(i => i.IsCompleted == true).ToListAsync();
     }
 
-    return Results.Ok(items);
+    List<TodoDto> itemDto = mapper.Map<List<TodoDto>>(items);
+
+    return Results.Ok(itemDto);
 });
 
-todoGroup.MapGet("/{id}", async (string id) =>
+todoGroup.MapGet("/{id}", async (string id, IMapper mapper) =>
 {
     // Nếu chỉ để như vầy thì nó đúng là đã find luôn, nhưng không gán vào đâu để show ra hết
     //await DB.Find<TodoItem>().OneAsync(id);
@@ -108,18 +71,88 @@ todoGroup.MapGet("/{id}", async (string id) =>
     // Như dưới này thì có thằng hứng là item, rồi return lại bên dưới băng Ok(item)
     var item = await DB.Find<TodoItem>().OneAsync(id);
 
-    return item is not null ? Results.Ok(item) : Results.NotFound() ;
+    TodoDto itemDto = mapper.Map<TodoDto>(item);
+
+    return itemDto is not null ? Results.Ok(itemDto) : Results.NotFound() ;
 });
 
-todoGroup.MapPost("", async (TodoItem todoitem) =>
+todoGroup.MapPost("", async (CreateTodoRequest request, IMapper mapper) =>
 {
     // Ver lỏ 1 =)))
     //await DB.SaveAsync(todoitem);
 
-    todoitem.CreateAt = DateTime.Now;
-    await DB.SaveAsync(todoitem);
+    TodoItem item = mapper.Map<TodoItem>(request);
+    item.CreateAt = DateTime.Now;
 
-    return Results.Created($"/api/todos/{todoitem.ID}", todoitem);
+    await DB.SaveAsync(item);
+
+    TodoDto result = mapper.Map<TodoDto>(item);
+    return Results.Created($"/api/todos/{result.Id}", result);
+});
+
+todoGroup.MapPut("/{id}", async (string id, UpdateTodoRequest request) => 
+{
+    bool isExist = await DB.Find<TodoItem>().MatchID(id).ExecuteAnyAsync();
+
+    if(!isExist)
+    {
+        return Results.NotFound();
+    }
+
+    await DB.Update<TodoItem>()
+            .MatchID(id)
+            .Modify(i => i.Title, request.Title)
+            .Modify(i => i.IsCompleted, request.IsCompleted)
+            .ExecuteAsync();   
+
+    return Results.NoContent();
+
+});
+
+todoGroup.MapPatch("/{id}/toggle", async (string id) => 
+{
+    var item = await DB.Find<TodoItem>().OneAsync(id);
+
+    if (item ==null)
+    {
+        return Results.NotFound();
+    }
+    
+    item.IsCompleted = !item.IsCompleted;   
+
+    await item.SaveAsync();
+
+    return Results.NoContent();
+
+});
+
+todoGroup.MapDelete("/{id}", async (string id) => 
+{
+    var item = await DB.Find<TodoItem>().OneAsync(id);
+
+    if (item == null)
+    {
+        // Return lại theo kiểu thông thường, Notfound: một Body trống rỗng kèm mã 404
+        //return Results.NotFound();
+
+        return Results.Problem(detail: "Todo Item Not Found", statusCode: StatusCodes.Status404NotFound);
+    }
+
+    await item.DeleteAsync();
+
+    return Results.NoContent();
+
+});
+
+todoGroup.MapDelete("/completed", async () => 
+{
+    //List<TodoItem> item = await DB.Find<TodoItem>().Match(i => i.IsCompleted == true).ExecuteAsync();
+
+    //await item.DeleteAllAsync();
+
+    await DB.DeleteAsync<TodoItem>(i => i.IsCompleted == true);
+
+    return Results.NoContent();
 });
 
 //============================ API Section ======================
