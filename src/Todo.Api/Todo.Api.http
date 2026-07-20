@@ -5,7 +5,7 @@
 POST {{Todo.Api_HostAddress}}/api/todos
 Content-Type: application/json
 {
-  "Title":"Test tự viết file htmp để test"
+  "Title":"lorem300"
 }
 
 ###

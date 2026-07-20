@@ -1,10 +1,13 @@
 using AutoMapper;
+using FluentValidation;
+using Microsoft.AspNetCore.Http.HttpResults;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
 using Todo.Api.DTOs;
 using Todo.Api.Entities;
 using Todo.Api.Mappings;
+using Todo.Api.Validator;
 
 
 // Khai báo builder, đầu tiên và nobrainer là nổ cái này
@@ -20,7 +23,7 @@ var settings = MongoClientSettings.FromConnectionString(defaultConnectionString)
 // Thêm service cho builder bên dưới==================
 builder.Services.AddOpenApi();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 
 // sau khi add service xong hết thì mới .Build()
@@ -76,10 +79,17 @@ todoGroup.MapGet("/{id}", async (string id, IMapper mapper) =>
     return itemDto is not null ? Results.Ok(itemDto) : Results.NotFound() ;
 });
 
-todoGroup.MapPost("", async (CreateTodoRequest request, IMapper mapper) =>
+todoGroup.MapPost("", async (CreateTodoRequest request, IMapper mapper, IValidator<CreateTodoRequest> validator ) =>
 {
     // Ver lỏ 1 =)))
     //await DB.SaveAsync(todoitem);
+
+    var validationResult = await validator.ValidateAsync(request);
+
+    if(!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(validationResult.ToDictionary());
+    }
 
     TodoItem item = mapper.Map<TodoItem>(request);
     item.CreateAt = DateTime.Now;
@@ -90,8 +100,16 @@ todoGroup.MapPost("", async (CreateTodoRequest request, IMapper mapper) =>
     return Results.Created($"/api/todos/{result.Id}", result);
 });
 
-todoGroup.MapPut("/{id}", async (string id, UpdateTodoRequest request) => 
+todoGroup.MapPut("/{id}", async (string id, UpdateTodoRequest request, IValidator<UpdateTodoRequest> validator) => 
 {
+    var validationResult = await validator.ValidateAsync(request);
+
+    if (!validationResult.IsValid)
+    {
+        return Results.ValidationProblem(validationResult.ToDictionary());
+    }
+
+
     bool isExist = await DB.Find<TodoItem>().MatchID(id).ExecuteAnyAsync();
 
     if(!isExist)
