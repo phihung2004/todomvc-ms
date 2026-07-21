@@ -1,4 +1,4 @@
-@Todo.Api_HostAddress = https://localhost:7219
+@Todo.Api_HostAddress = http://localhost:5200
 
 ### 1. Tạo mới một Todo Item (POST)
 # Sau khi chạy, hãy copy lấy cái "Id" ở phần phản hồi trả về để dán vào các test bên dưới
@@ -69,3 +69,4 @@ DELETE {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
 ### 10. Dọn sạch toàn bộ các Todo đã hoàn thành (DELETE Clear Completed)
 # Hãy bấm PATCH Toggle vài item lên trạng thái 'true' trước, sau đó chạy lệnh này để xem nó quét sạch thế nào
 DELETE {{Todo.Api_HostAddress}}/api/todos/completed
+GET {{Todo.Api_HostAddress}}/api/todos

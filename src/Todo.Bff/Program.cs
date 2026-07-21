@@ -1,41 +1,38 @@
+using Carter;
+using Todo.Bff.ApiClient;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
-var app = builder.Build();
+// Typed client:
+builder.Services.AddHttpClient<TodoApiClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// Thêm CORS cho `http://localhost:4200'
+// Mẫu dùng tren doc, nó bảo là: " default CORS policy to all controller endpoints."
+// Nó đang thiếu Header với Method (GET, PUT, POST,...), đang không nhận mấy cái đó. Angular gửi cũng vậy
+// Thêm AllowAnyHeader với AllowAnyMethod để mà FE nso gọi vào
+builder.Services.AddCors(option =>
+    {
+        option.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
 
-app.UseHttpsRedirection();
+        });
+    });
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
 
-app.Run();
+builder.Services.AddCarter();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+var app  = builder.Build();
+
+
+// Xài CORS trước Carter
+app.UseCors();
+
+app.MapCarter();
+
+
+
+app.Run();  

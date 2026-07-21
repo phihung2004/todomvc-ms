@@ -1,6 +1,44 @@
-@Todo.Bff_HostAddress = http://localhost:5260
+@BffUrl = http://localhost:5100/bff/todos
 
-GET {{Todo.Bff_HostAddress}}/weatherforecast/
+### 1. Lấy toàn bộ Todo
+GET {{BffUrl}}
 Accept: application/json
 
+### 2. Tạo mới 1 Todo (Test xem validation 400 có ném về đúng không)
+POST {{BffUrl}}
+Content-Type: application/json
+
+{
+  "title": ""
+}
+
 ###
+
+POST {{BffUrl}}
+Content-Type: application/json
+{
+  "title":"Test M3 cho xong"
+}
+
+### 3. Lấy Todo theo ID (Copy cái ID vừa tạo ở trên dán vào đây)
+GET {{BffUrl}}/id-cua-todo-vua-tao
+
+### 4. Update Todo
+PUT {{BffUrl}}/id-cua-todo-vua-tao
+Content-Type: application/json
+
+{
+  "title": "Học xong Minimal API (Update)",
+  "isCompleted": true
+}
+
+### 5. Toggle (Lưu ý: API của ông đang map là PATCH /{id})
+PATCH {{BffUrl}}/6a5f7ef9471fa92bd6bf3853/toggle
+
+### 6. Xóa Todo
+DELETE {{BffUrl}}/completed
+
+
+
+### 6. Xóa Todo
+DELETE {{BffUrl}}/6a5e34a7c72b6e78af2680f1
