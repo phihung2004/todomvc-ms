@@ -1,8 +1,0 @@
-.todoInput{
-    padding: 16px 16px 16px 10px;
-    border: none;
-}
-
-.todoInput::placeholder {
-  color: #858585;
-}

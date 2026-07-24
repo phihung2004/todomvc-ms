@@ -12,10 +12,12 @@ import { AsyncPipe } from '@angular/common';
 export class TodoInput {
   store = inject(TodosStore);
 
-  toggleAll(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    this.store.toggleAllTodos(checkbox.checked);
-  }
+  // Toggle ALL nên để bên list thay vì input, tại sao ? Nút trên Demo nằm ngang input mà?
+  //
+  // toggleAll(event: Event): void {
+  //   const checkbox = event.target as HTMLInputElement;
+  //   this.store.toggleAllTodos(checkbox.checked);
+  // }
 
   createItem(event: Event): void {
     const input = event.target as HTMLInputElement;

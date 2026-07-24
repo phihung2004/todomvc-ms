@@ -1,23 +1,2 @@
 /* You can add global styles to this file, and also import other style files */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #f5f5f5;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: #4d4d4d;
-  font-weight: 300;
-}
-
-h1{
-    font-size: 75px;
-    font-weight: 500;
-    color: rgb(207, 64, 64);
-    text-align: center;
-}
-
-.todoApp{
-    background: #fff;
-    margin: 100px auto 50px auto;
-    max-width: 550px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
-}
+@import 'todomvc-app-css/index.css';

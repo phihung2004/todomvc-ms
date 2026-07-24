@@ -1,18 +1,32 @@
-<div>
+<!-- Gà vãi :))) tự check if (store.activeCount$) để hiện footer 
+Là nếu không còn active thì nó sẽ tắt , 2 trường hợp:
+- Không có todo
+- Các todo được đánh completed > SAI, đánh toàn bộ thì vẫn giữ footer chứ => Gà -->
+
+
+<!-- update, check laf đúng rồi á, mà check biến ngu, phải tự thêm 1 selector để tìm  -->
+
+@if (store.hasTodo$|async){
+    <footer class="footer">
 
     @if (store.loading$|async){
         <span>Loading...</span>
     }@else {
-        <span>{{ store.activecount$ | async }} items left</span>
+        <span class="todo-count">{{ store.activecount$ | async }} items left</span>
     }
 
-<div>
-    <a routerLink="/all" routerLinkActive="selected">All</a>
-    <a routerLink="/active" routerLinkActive="selected">Active</a>
-    <a routerLink="/completed" routerLinkActive="selected">Completed</a>
-</div>
+    <ul class="filters">
+        <li><a routerLink="/all" routerLinkActive="selected">All</a></li>
+        <li><a routerLink="/active" routerLinkActive="selected">Active</a></li>
+        <li><a routerLink="/completed" routerLinkActive="selected">Completed</a></li>
+    </ul>
 
 @if (store.hasCompleted$ | async) {
-    <button (click)="clearCompleted()">Clear completed</button>
+    <button 
+    class="clear-completed"
+    (click)="clearCompleted()">Clear completed</button>
 }
-</div>
+</footer>
+
+}
+

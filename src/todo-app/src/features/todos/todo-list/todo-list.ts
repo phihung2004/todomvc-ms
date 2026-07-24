@@ -35,4 +35,9 @@ export class TodoList implements OnInit {
   editTodo({ id, title, isCompleted }: { id: string; title: string; isCompleted: boolean }): void {
     this.store.updateTodo({ id, title, isCompleted });
   }
+
+  toggleAll(event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    this.store.toggleAllTodos(checkbox.checked);
+  }
 }

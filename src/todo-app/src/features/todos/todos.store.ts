@@ -69,6 +69,8 @@ export class TodosStore extends ComponentStore<TodosState> {
     (todos) => todos.some((todo) => todo.isCompleted === true),
   );
 
+  readonly hasTodo$ = this.select(this.todos$, (todos) => todos.length > 0);
+
   // Updater============================================
   // Thằng duy nhất sẽ chạm vào cục State - Kho todos trên cùng để sửa.
   // Sẽ là các điều kiện để GIỮ LẠI những cái todos cũ, hoặc thêm mới, hoặc xóa đi, hoặc update lại.
