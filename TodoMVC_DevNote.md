@@ -266,10 +266,21 @@ ng generate environments
 
 
 
-Note:
+#### **Note:**
 
 1. Service ok, đã test địa bằng AI để gen AI để coi nó kết nnoois với BFF ok rồi.
 2. App + COmponent + Store. Méo biết làm cái nào trước.
+3. làm bắt đầu là store sẽ gọi service nền lmaf tiếp nó:
+* &#x20;store dùng Component Store nên rất phức tạp với mình, base là State- kho chứa các biến cần thao tác
+* Selector, lấy các data theo điều kiện mình muốn để nấu
+* Updater: Thao tác chọc tay vào State để biến đổi kho
+* Effect: Bùa, nhận tham số từ các Component (ts+html) để gọi Service + Dùng các Updater để nấu lại UI và data sau khi người dùng thao tác
+
+4\. cấu trúc với cú pháp của các event, lấy property thì hơi lạ, với mấy thao tác hành vi của UI thì cần AI để mà nó chỉ hướng mới biết làm.
+
+5\. CSS là quên gần hết rồi, nên dùng luôn cấu trúc mà TodoMVC có sắn.
+
+
 
 
 
