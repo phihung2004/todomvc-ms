@@ -32,6 +32,7 @@ export class TodosStore extends ComponentStore<TodosState> {
   }
 
   // Selectors============================================
+  // Lấy
   readonly todos$ = this.select((state) => state.todos);
 
   //Trả về số lượng đang active
@@ -74,6 +75,8 @@ export class TodosStore extends ComponentStore<TodosState> {
   // Updater============================================
   // Thằng duy nhất sẽ chạm vào cục State - Kho todos trên cùng để sửa.
   // Sẽ là các điều kiện để GIỮ LẠI những cái todos cũ, hoặc thêm mới, hoặc xóa đi, hoặc update lại.
+
+  //patch
   readonly setTodos = this.updater((state, todos: TodoDto[]) => ({
     ...state,
     todos: todos,
@@ -227,7 +230,6 @@ export class TodosStore extends ComponentStore<TodosState> {
   //   )
   // );
 
-  // Bùa AI :)))
   // Khai báo một Effect, nhận đầu vào là chuỗi string (chính là cái ống id$)
   readonly toggleTodo = this.effect<string>((id$) =>
     // Bắt đầu đưa cái ống id$ vào băng chuyền xử lý

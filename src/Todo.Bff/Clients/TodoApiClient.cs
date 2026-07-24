@@ -1,6 +1,6 @@
 ﻿using Todo.Bff.DTOs;
 
-namespace Todo.Bff.ApiClient
+namespace Todo.Bff.Client
 {
     // Gọi về Todo.Api nên map Url cho chuẩn
     public class TodoApiClient

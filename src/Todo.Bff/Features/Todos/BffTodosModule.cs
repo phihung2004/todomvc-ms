@@ -1,9 +1,9 @@
 ﻿using Carter;
-using Todo.Bff.ApiClient;
+using Todo.Bff.Client;
 using Todo.Bff.DTOs;
 using Todo.Bff.Extensions;
 
-namespace Todo.Bff.Modules
+namespace Todo.Bff.Features.Todos
 {
     // Thằng này hứng các request từ FE
     public class BffTodosModule : ICarterModule

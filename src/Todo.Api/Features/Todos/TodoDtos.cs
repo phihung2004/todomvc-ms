@@ -1,10 +1,10 @@
-﻿namespace Todo.Api.DTOs
+﻿namespace Todo.Api.Features.Todos
 {
     // Response DTO, dùng để trả về, lấy nguyên cục của DB trả về
     // Thường sẽ có full các trường cần thiết để hiện/trả ra ngoài FE
     // Cần Tittle để hiện
     //Cần bool để hiển thị là xong hay chưa
-    //Cần ngày để mà sort
+    //Cần ngày để mà sort ?
     public class TodoDto
     {
         public string Id { get; set; }

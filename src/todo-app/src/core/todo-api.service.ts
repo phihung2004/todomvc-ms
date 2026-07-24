@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import {environment} from '../environments/environment';
+import { environment } from '../environments/environment';
 
 // Khai báo khuôn dữ liệu (y hệt thằng DTO ở BE)
 export interface TodoDto {
@@ -17,7 +17,7 @@ export interface CreateTodoRequest {
 
 export interface UpdateTodoRequest {
   title: string;
-  isCompleted: boolean
+  isCompleted: boolean;
 }
 
 @Injectable({
@@ -25,7 +25,7 @@ export interface UpdateTodoRequest {
 })
 export class TodoApiService {
   // GetById, Create, Update, Toggle, Delete, DeleteCompleted
-  
+
   private readonly apiUrl = environment.apiUrl;
   //private readonly apiUrl = 'http://localhost:5100/bff/todos';
 
@@ -38,27 +38,27 @@ export class TodoApiService {
   }
 
   // Hàm gọi GET lấy toàn bộ data
-  getById(id:string): Observable<TodoDto> {
+  getById(id: string): Observable<TodoDto> {
     return this.http.get<TodoDto>(`${this.apiUrl}/${id}`);
   }
 
-  createTodo(request:CreateTodoRequest): Observable<TodoDto>{
-    return this.http.post<TodoDto>(this.apiUrl,request);
+  createTodo(request: CreateTodoRequest): Observable<TodoDto> {
+    return this.http.post<TodoDto>(this.apiUrl, request);
   }
 
-  updateTodo(id:string,request:UpdateTodoRequest): Observable<TodoDto>{
-    return this.http.put<TodoDto>(`${this.apiUrl}/${id}`,request);
+  updateTodo(id: string, request: UpdateTodoRequest): Observable<TodoDto> {
+    return this.http.put<TodoDto>(`${this.apiUrl}/${id}`, request);
   }
 
-  toggleTodo(id:string): Observable<TodoDto>{
-    return this.http.patch<TodoDto>(`${this.apiUrl}/${id}/toggle`,null);
+  toggleTodo(id: string): Observable<TodoDto> {
+    return this.http.patch<TodoDto>(`${this.apiUrl}/${id}/toggle`, null);
   }
 
-  deleteTodo(id:string): Observable<TodoDto>{
+  deleteTodo(id: string): Observable<TodoDto> {
     return this.http.delete<TodoDto>(`${this.apiUrl}/${id}`);
   }
 
-  deleteCompleted(): Observable<TodoDto>{
+  deleteCompleted(): Observable<TodoDto> {
     return this.http.delete<TodoDto>(`${this.apiUrl}/completed`);
   }
 }

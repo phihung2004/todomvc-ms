@@ -11,4 +11,9 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Reminders\" />
+    <Folder Include="Features\Statistics\" />
+  </ItemGroup>
+
 </Project>

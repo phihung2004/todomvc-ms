@@ -5,12 +5,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
-using Todo.Api.DTOs;
-using Todo.Api.Entities;
-using Todo.Api.Mappings;
-using Todo.Api.Validator;
+using Todo.Api.Features.Todos;
 
-namespace Todo.Api.Modules
+namespace Todo.Api.Features.Todos
 {
     public class TodosModule : ICarterModule
     {
