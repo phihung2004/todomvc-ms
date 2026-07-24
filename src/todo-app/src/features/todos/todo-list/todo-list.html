@@ -1,0 +1,11 @@
+<div>
+    @for (item of store.filteredTodos$ | async ; track item.id ){
+        <app-todo-item 
+        [todo]="item"
+        (itemToDelete)="deleteTodo($event)"
+        (itemToToggle)="toggleItem($event)"
+        (itemToEdit)="editTodo($event)"
+         ></app-todo-item>
+    } 
+</div>
+

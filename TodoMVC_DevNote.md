@@ -192,6 +192,14 @@ Cần học:
 
 
 
+CLient:
+
+1. Là thằng trả về cá thông tin mà nó lấy được từ BE, dùng các Method của HttpClient để gọi API.
+2. nên gói kiểu trả về là HttpResponseMessage vì nó có đầy đủ các thông tin BE trả về cả lỗi.
+3. Vì hiện tại là map 1-1 , dự án nhỏ nên không cần, AI csobaro mốt nhiều gì đó thì nên MAP lại kiểu trả về là 1 DTO nào đó để mà gộp lại mà dùng.
+
+
+
 
 
 ### ============================================================ todo-app ===============================
@@ -200,7 +208,53 @@ Tạo dự án StandAlone Angular 20 bằng cmd. rồi mở bằng VSC
 
 
 
-Gọi về bằng service
+> npx @angular/cli@20 new todo-app --standalone
+
+
+
+#### **Gọi về bằng service - RxJS**
+
+#### **Và các compoent được phân nhẹ ra bằng NgRx - Component Store**
+
+
+
+### **Đạn (Store) -> Súng (Component) -> Bóp Cò (HTML) -> Ra chiến trường (App.ts).**
+
+
+
+
+
+**Đều có CLI để mà có thể tạo thay vì tọa bằng tay.**
+Bước 1: Tạo file Service gọi API (nằm trong thư mục core)
+---
+
+ng g s core/todo-api
+
+
+
+#### Bước 2: Tạo các Component cho UI (nằm trong thư mục features/todos)
+
+ng g c features/todos/todo-list
+
+ng g c features/todos/todo-item
+
+ng g c features/todos/todo-input
+
+ng g c features/todos/footer
+
+
+
+#### Bước 3: Tạo file Store (NgRx ComponentStore)
+
+ng g s features/todos/todos.store
+
+
+
+Tọa file biến môi trường:
+
+ng generate environments
+
+
 
 
 
@@ -209,6 +263,13 @@ Gọi về bằng service
 
 
 ##### Service > Store > App.ts
+
+
+
+Note:
+
+1. Service ok, đã test địa bằng AI để gen AI để coi nó kết nnoois với BFF ok rồi.
+2. App + COmponent + Store. Méo biết làm cái nào trước.
 
 
 

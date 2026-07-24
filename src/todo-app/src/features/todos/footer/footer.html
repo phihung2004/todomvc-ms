@@ -1,0 +1,18 @@
+<div>
+
+    @if (store.loading$|async){
+        <span>Loading...</span>
+    }@else {
+        <span>{{ store.activecount$ | async }} items left</span>
+    }
+
+<div>
+    <a routerLink="/all" routerLinkActive="selected">All</a>
+    <a routerLink="/active" routerLinkActive="selected">Active</a>
+    <a routerLink="/completed" routerLinkActive="selected">Completed</a>
+</div>
+
+@if (store.hasCompleted$ | async) {
+    <button (click)="clearCompleted()">Clear completed</button>
+}
+</div>

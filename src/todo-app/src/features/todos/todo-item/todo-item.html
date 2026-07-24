@@ -1,0 +1,15 @@
+<div>
+      <input type="checkbox" [checked]="todo().isCompleted" (change)="toggleItem()" />
+
+@if (isEditing){
+      <input type="text" 
+      [value]="todo().title" 
+      (blur)="submitEdit($event.target.value)"
+      (keyup.enter)="submitEdit($event.target.value)"
+      (keyup.escape)="cancelEdit()"
+      />
+}@else{
+      <label (dblclick)="startEdit()">{{todo().title}}</label>
+}
+      <button (click)="deleteItem()">Delete Item</button>
+</div>

@@ -1,0 +1,16 @@
+@if (store.error$ | async; as errorMessage){
+    <div style="color: red;">
+        {{errorMessage}}
+    </div>
+}
+
+<input type="checkbox" 
+    (change)="toggleAll($event)"
+    [checked]="store.isAllCompleted$ | async"
+    />
+<input class="todoInput"
+placeholder="What need to be done?" 
+autofocus
+(keyup.enter)="createItem($event)"
+(input)="clearError()"
+/>
