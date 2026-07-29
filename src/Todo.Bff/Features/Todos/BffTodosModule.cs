@@ -1,6 +1,4 @@
 ﻿using Carter;
-using Todo.Bff.Client;
-using Todo.Bff.DTOs;
 using Todo.Bff.Extensions;
 
 namespace Todo.Bff.Features.Todos

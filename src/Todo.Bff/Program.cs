@@ -1,5 +1,6 @@
 using Carter;
-using Todo.Bff.Client;
+using Todo.Bff.Features.Reminders;
+using Todo.Bff.Features.Todos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Typed client:
 builder.Services.AddHttpClient<TodoApiClient>(c =>
     c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
+builder.Services.AddHttpClient<ReminderApiClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
+
 
 // Thêm CORS cho `http://localhost:4200'
 // Mẫu dùng tren doc, nó bảo là: " default CORS policy to all controller endpoints."

@@ -1,0 +1,50 @@
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.new-todo {
+  padding-right: 60px; /* Chừa khoảng trống bên phải để chữ không bị đè lên icon lịch */
+}
+
+/* Biến hóa cái input date thành 1 cái nút bấm icon */
+.date-icon-picker {
+  position: absolute;
+  right: 15px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 40px;
+  width: 40px;
+  border: none;
+  background: transparent;
+  color: transparent; /* Giấu chữ mm/dd/yyyy đi */
+  cursor: pointer;
+  outline: none;
+}
+
+/* Ẩn text bên trong native date picker (hoạt động trên Chrome/Edge/Safari) */
+.date-icon-picker::-webkit-datetime-edit {
+  display: none; 
+}
+
+/* Phóng to và chỉnh style cho icon lịch */
+.date-icon-picker::-webkit-calendar-picker-indicator {
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.date-icon-picker::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.error-message {
+  color: #d9534f;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px;
+  background: #fdf7f7;
+  border-bottom: 1px solid #ead7d7;
+}

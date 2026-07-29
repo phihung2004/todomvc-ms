@@ -1,0 +1,36 @@
+.bell-wrapper {
+  position: absolute; /* Rút khỏi luồng HTML, cho lơ lửng */
+  right: 0; /* Ép sát mép phải của cái mỏ neo (.todoapp) */
+  top: -40px; /* Đẩy ngược lên trên đầu cái hộp trắng (chỉnh số này tùy mắt) */
+  z-index: 50; /* Đảm bảo nổi lềnh bềnh trên mọi thứ */
+}
+
+.bell-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative; /* Làm mỏ neo cho cái chấm đỏ */
+  margin: 0px 30px 0px 0px;
+}
+
+/* Chấm đỏ huyền thoại báo Notification */
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Bảng xổ xuống */
+.panel-dropdown {
+  position: absolute;
+  top: 100%; /* Rớt xuống ngay dưới đít cái chuông */
+  right: 0; /* Canh lề phải theo cái chuông */
+  width: 320px; /* Độ rộng của bảng thông báo */
+  z-index: 100;
+}

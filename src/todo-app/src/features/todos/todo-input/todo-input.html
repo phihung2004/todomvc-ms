@@ -1,22 +1,35 @@
-@if (store.error$ | async; as errorMessage){
-    <div style="color: red;">
-        {{errorMessage}}
+<header class="header">
+  @if (store.error$ | async; as errorMessage) {
+    <div style="color: red">
+      {{ errorMessage }}
     </div>
-}
-    <h1>TodoMVC</h1>
+  }
+  <h1>TodoMVC</h1>
 
-    <!-- Lý do nút toggle all nên nằm bên list vì css kéo nó lên nằm ngang với input,
+  <!-- Lý do nút toggle all nên nằm bên list vì css kéo nó lên nằm ngang với input,
     Nên nhìn thì tưởng là ngang nhugnw mà nút thuộc list ¯\_(ツ)_/¯ -->
 
-<!-- <input type="checkbox" 
+  <!-- <input type="checkbox" 
     id="toggle-all"
     class="toggle-all"
     (change)="toggleAll($event)"
     [checked]="store.isAllCompleted$ | async"
     /> -->
-<input class="new-todo"
-placeholder="What need to be done?" 
-autofocus
-(keyup.enter)="createItem($event)"
-(input)="clearError()"
-/>
+  <div class="input-wrapper">
+    <input
+      #titleInput
+      class="new-todo"
+      placeholder="What need to be done?"
+      autofocus
+      (keyup.enter)="createItem(titleInput, dateInput)"
+      (input)="clearError()"
+    />
+
+    <input
+      #dateInput
+      class="date-icon-picker"
+      type="datetime-local"
+      (keyup.enter)="createItem(titleInput, dateInput)"
+    />
+  </div>
+</header>

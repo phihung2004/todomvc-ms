@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { TodoApiService, TodoDto } from '../../core/todo-api.service';
+import { TodoApiService, TodoDto } from './todo-api.service';
 import { ComponentStore } from '@ngrx/component-store';
 import { tapResponse } from '@ngrx/operators';
 import { switchMap, concatMap, withLatestFrom, tap, EMPTY } from 'rxjs';
@@ -82,6 +82,7 @@ export class TodosStore extends ComponentStore<TodosState> {
     todos: todos,
   }));
 
+  // cách đọc thằng updater : Tên_Hàm + <Bơ_Đi> + (Đầu_Vào) + : + Đầu_Ra
   readonly appendTodo = this.updater((state, todo: TodoDto) => ({
     ...state,
     todos: [...state.todos, todo],
@@ -91,6 +92,21 @@ export class TodosStore extends ComponentStore<TodosState> {
     ...state,
     todos: state.todos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)), // Tìm, đúng id thì nó update giá trị, right ?
   }));
+
+  // Chỉ tìm đúng ID và đổi Title, giữ nguyên các trường khác (như createAt)
+  // M7: agiowf nó sửa thêm cả Date, nên giwof sẽ đổi tên
+  // Từ editTitleInStore => editTodoInStore
+  // Đổi tên và thêm dueAt vào payload
+  readonly editTodoInStore = this.updater(
+    (state, payload: { id: string; title: string; dueAt?: string }) => ({
+      ...state,
+      todos: state.todos.map((todo) =>
+        todo.id === payload.id
+          ? { ...todo, title: payload.title, dueAt: payload.dueAt } // Cập nhật cả Date
+          : todo,
+      ),
+    }),
+  );
 
   readonly toggleInStore = this.updater((state, isCompletedTarget: boolean) => ({
     ...state,
@@ -131,14 +147,6 @@ export class TodosStore extends ComponentStore<TodosState> {
     ),
   }));
 
-  // Chỉ tìm đúng ID và đổi Title, giữ nguyên các trường khác (như createAt)
-  readonly editTitleInStore = this.updater((state, payload: { id: string; title: string }) => ({
-    ...state,
-    todos: state.todos.map((todo) =>
-      todo.id === payload.id ? { ...todo, title: payload.title } : todo,
-    ),
-  }));
-
   //Effects============================================
   readonly loadTodos = this.effect<void>((trigger$) =>
     trigger$.pipe(
@@ -164,11 +172,11 @@ export class TodosStore extends ComponentStore<TodosState> {
     ),
   );
 
-  readonly createTodo = this.effect<string>((title$) =>
-    title$.pipe(
+  readonly createTodo = this.effect<{ title: string; dueAt?: string }>((payload$) =>
+    payload$.pipe(
       // concatMap: Tạo hàng đợi (Queue). Bấm liên tục 5 phát thì xử lý tuần tự từng cái một, không bỏ sót cái nào
-      concatMap((title) => {
-        const trimmedTitle = title.trim();
+      concatMap((payload) => {
+        const trimmedTitle = payload.title.trim();
 
         if (!trimmedTitle) {
           this.setError('Todo can not leave emty!');
@@ -182,7 +190,7 @@ export class TodosStore extends ComponentStore<TodosState> {
 
         this.setError(null);
 
-        return this.todoApiService.createTodo({ title }).pipe(
+        return this.todoApiService.createTodo({ title: trimmedTitle, dueAt: payload.dueAt }).pipe(
           tapResponse(
             (newTodo) => this.appendTodo(newTodo), // Thành công: Nhét vào mảng
             (error) => this.setError('Error creating todo'),
@@ -193,28 +201,35 @@ export class TodosStore extends ComponentStore<TodosState> {
   );
 
   // Đã được AI sửa để fix được lỗi là cần F5 để hiện update
-  readonly updateTodo = this.effect<{ id: string; title: string; isCompleted: boolean }>(
-    (payload$) =>
-      payload$.pipe(
-        tap((payload) => this.editTitleInStore({ id: payload.id, title: payload.title })),
-
-        concatMap((payload) =>
-          this.todoApiService
-            .updateTodo(payload.id, {
-              title: payload.title,
-              isCompleted: payload.isCompleted,
-            })
-            .pipe(
-              tapResponse(
-                () => console.log('Đã lưu Title mới xuống Backend!'),
-                (error) => {
-                  console.error('Error updating todo:', error);
-                  this.loadTodos();
-                },
-              ),
-            ),
-        ),
+  readonly updateTodo = this.effect<{
+    id: string;
+    title: string;
+    isCompleted: boolean;
+    dueAt?: string;
+  }>((payload$) =>
+    payload$.pipe(
+      tap((payload) =>
+        this.editTodoInStore({ id: payload.id, title: payload.title, dueAt: payload.dueAt }),
       ),
+
+      concatMap((payload) =>
+        this.todoApiService
+          .updateTodo(payload.id, {
+            title: payload.title,
+            isCompleted: payload.isCompleted,
+            dueAt: payload.dueAt,
+          })
+          .pipe(
+            tapResponse(
+              () => console.log('Đã lưu Title mới xuống Backend!'),
+              (error) => {
+                console.error('Error updating todo:', error);
+                this.loadTodos();
+              },
+            ),
+          ),
+      ),
+    ),
   );
 
   // readonly toggleTodo = this.effect<string>((id$) =>
@@ -267,7 +282,7 @@ export class TodosStore extends ComponentStore<TodosState> {
     ),
   );
 
-  // Bùa AI :)))
+  // Dùng AI cho bên dưới :)))
   // Xử lý Toggle All xuống Backend
   // Coi doc của thằng withLatestFrom
   // Trở lại nhận biến boolean từ UI truyền xuống

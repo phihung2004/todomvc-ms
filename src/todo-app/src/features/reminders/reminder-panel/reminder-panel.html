@@ -1,0 +1,27 @@
+<div class="panel-container">
+  <div class="panel-header">
+    <h3>Task overdue!</h3>
+  </div>
+
+  <ul class="reminder-list">
+    <!-- Duyệt qua mảng thông báo -->
+    @for (item of reminderStore.pending$ | async; track item.id) {
+      <li class="reminder-item">
+        <!-- Dùng trick hàm getTodoTitle kết hợp AsyncPipe để moi tên ra -->
+        <span class="todo-title">{{ getTodoTitle(item.todoId) | async }}</span>
+        <span class="due-date">Hẹn lúc: {{ item.dueAt | date: 'short' }}</span>
+
+        <div class="actions">
+          <!-- Đặt id #snoozeMin để lôi giá trị ra gán vào hàm click -->
+          <input #snoozeMin type="number" class="snooze-input" min="10" max="60" value="10" />
+          <span class="min-label">phút</span>
+
+          <button class="btn-snooze" (click)="snooze(item.id, snoozeMin.value)">Snooze</button>
+          <button class="btn-dismiss" (click)="dismiss(item.id)">Dismiss</button>
+        </div>
+      </li>
+    } @empty {
+      <li class="empty-msg">Overdue taks empty</li>
+    }
+  </ul>
+</div>

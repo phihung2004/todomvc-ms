@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Carter;
 using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http.HttpResults;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using MongoDB.Entities;
+using Todo.Api.Common;
 using Todo.Api.Features.Todos;
 
 namespace Todo.Api.Features.Todos
@@ -103,13 +106,14 @@ namespace Todo.Api.Features.Todos
                         .MatchID(id)
                         .Modify(i => i.Title, request.Title)
                         .Modify(i => i.IsCompleted, request.IsCompleted)
+                        .Modify(i => i.DueAt, request.DueAt)
                         .ExecuteAsync();
 
                 return Results.NoContent();
 
             });
 
-            todoGroup.MapPatch("/{id}/toggle", async (string id) =>
+            todoGroup.MapPatch("/{id}/toggle", async (string id, IMediator mediator) =>
             {
                 var item = await DB.Find<TodoItem>().OneAsync(id);
 
@@ -122,11 +126,18 @@ namespace Todo.Api.Features.Todos
 
                 await item.SaveAsync();
 
+                // thêm thằng Meiator để mà hú event để bên Reminderchinhr lại reminder item mỗi khi toggle todo 
+                await mediator.Publish(new TodoStateChangedNotification
+                {
+                    TodoId = id,
+                    IsDeletedOrCompleted = true
+                });
+
                 return Results.NoContent();
 
             });
 
-            todoGroup.MapDelete("/{id}", async (string id) =>
+            todoGroup.MapDelete("/{id}", async (string id, IMediator mediator) =>
             {
                 var item = await DB.Find<TodoItem>().OneAsync(id);
 
@@ -139,6 +150,13 @@ namespace Todo.Api.Features.Todos
                 }
 
                 await item.DeleteAsync();
+
+                // thêm thằng Meiator để mà hú event để bên Reminderchinhr lại reminder item mỗi khi todo bị xóa
+                await mediator.Publish(new TodoStateChangedNotification
+                {
+                    TodoId = id,
+                    IsDeletedOrCompleted = true
+                });
 
                 return Results.NoContent();
 

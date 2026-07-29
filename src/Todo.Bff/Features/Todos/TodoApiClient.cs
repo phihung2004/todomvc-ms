@@ -1,6 +1,4 @@
-﻿using Todo.Bff.DTOs;
-
-namespace Todo.Bff.Client
+﻿namespace Todo.Bff.Features.Todos
 {
     // Gọi về Todo.Api nên map Url cho chuẩn
     public class TodoApiClient
@@ -24,7 +22,7 @@ namespace Todo.Bff.Client
 
         public async Task<HttpResponseMessage> CreateTodoAsync(CreateTodoRequest request)
         {
-            // Ver 1 
+            // Ver 1 siu lỏ, create mà dùng get lmao
             //return await _client.GetFromJsonAsync<CreateTodoRequest>($"/api/todos/{request}");
 
             return await _client.PostAsJsonAsync("/api/todos",request);

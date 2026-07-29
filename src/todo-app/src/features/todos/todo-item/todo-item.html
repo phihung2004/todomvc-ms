@@ -1,32 +1,42 @@
 <!-- Bọc vào để nó lấy CSS của TodoMVC. -->
- <!-- thêm hover hiện xóa 
+<!-- thêm hover hiện xóa 
  Check box tròn 
  edit inline thì chiếm dòng đos thay vì them 1 dòng bên dưới, là nó có CSS behavior của nó rồi -->
 <!-- Tự mò là hơi lâu á , responsive mệt điên-->
 <li [class.completed]="todo().isCompleted" [class.editing]="isEditing">
+  <div class="view">
+    <input type="checkbox" class="toggle" [checked]="todo().isCompleted" (change)="toggleItem()" />
 
-<div class="view">
-      <input 
-      type="checkbox" 
-      class="toggle"
-      [checked]="todo().isCompleted" 
-      (change)="toggleItem()" />
+    <label class="todo-label-wrapper" (dblclick)="startEdit()">
+      <!-- Đổi title thành thẻ span -->
+      <span class="todo-title">{{ todo().title }}</span>
 
-      <label (dblclick)="startEdit()">{{todo().title}}</label>
+      @if (todo().dueAt) {
+        <span class="due-at-badge">{{ todo().dueAt | date: 'short' }}</span>
+      }
+    </label>
 
-      <button 
-      class="destroy"
-      (click)="deleteItem()"></button>
-
-</div>
-@if (isEditing){
-      <input type="text" 
-      class="edit"
-      [value]="todo().title" 
-      (blur)="submitEdit($event.target.value)"
-      (keyup.enter)="submitEdit($event.target.value)"
-      (keyup.escape)="cancelEdit()"
-      autofocus
+    <button class="destroy" (click)="deleteItem()"></button>
+  </div>
+  @if (isEditing) {
+    <div class="edit-input-wrapper">
+      <input
+        #editTitle
+        type="text"
+        class="edit"
+        [value]="todo().title"
+        (keyup.enter)="submitEdit(editTitle.value, editDate.value)"
+        (keyup.escape)="cancelEdit()"
+        autofocus
       />
-}
-</li> 
+
+      <input
+        #editDate
+        class="date-icon-picker"
+        type="datetime-local"
+        [value]="todo().dueAt ? (todo().dueAt | date: 'yyyy-MM-ddTHH:mm') : ''"
+        (keyup.enter)="submitEdit(editTitle.value, editDate.value)"
+      />
+    </div>
+  }
+</li>

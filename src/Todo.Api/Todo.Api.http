@@ -1,15 +1,20 @@
 @Todo.Api_HostAddress = http://localhost:5200
 
+### ==========================================================
+### TẬP 1: TƯƠNG TÁC VỚI TODOS
+### ==========================================================
+
 ### 1. Tạo mới một Todo Item (POST)
-# Sau khi chạy, hãy copy lấy cái "Id" ở phần phản hồi trả về để dán vào các test bên dưới
+# Sau khi chạy, hãy copy lấy cái "id" ở phần phản hồi trả về để dán vào các test bên dưới
 POST {{Todo.Api_HostAddress}}/api/todos
 Content-Type: application/json
+
 {
-  "Title":"lorem300"
+  "title": "Test Reminder Scanner",
+  "dueAt": "2026-07-28T15:00:00Z" 
 }
 
 ###
-
 
 ### 2. Lấy TOÀN BỘ danh sách Todo (Không truyền filter)
 GET {{Todo.Api_HostAddress}}/api/todos
@@ -36,37 +41,72 @@ Accept: application/json
 ###
 
 ### 6. Lấy chi tiết một Todo theo ID (GET {id})
-# Thay thế chuỗi ID dưới đây bằng ID thực tế ông vừa tạo ở bước 1 nhé
+# Lấy ID ở bước 1 dán vào đây
 GET {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
 Accept: application/json
 
 ###
 
 ### 7. Cập nhật (Sửa) toàn bộ Todo (PUT)
-# Thay thế chuỗi ID trên URL bằng ID thực tế dưới DB của ông
+# Thay ID trên URL bằng ID thực tế dưới DB
 PUT {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
 Content-Type: application/json
 
 {
-  "Title": "Học Carter module hóa cùng ông thầy Senior (Đã cập nhật)",
-  "IsCompleted": false
+  "title": "Cập nhật Title mới cho Todo",
+  "isCompleted": false
 }
 
 ###
 
 ### 8. Đảo trạng thái hoàn thành (PATCH Toggle)
-# Mỗi lần bấm Send Request, trạng thái IsCompleted dưới DB sẽ tự động lật ngược lại (true <-> false)
-PATCH {{Todo.Api_HostAddress}}/api/todos/6a5aae466d5e50b62c674070/toggle
+# Bắn API này sẽ làm IsCompleted đảo ngược (true <-> false) VÀ tự động trigger event dọn rác Reminder!
+PATCH {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816/toggle
 
 ###
 
 ### 9. Xóa một Todo đơn lẻ theo ID (DELETE {id})
-# Test xong nhớ đừng chạy lệnh này vội, để dành test nốt lệnh xóa hàng loạt ở dưới nha ông
 DELETE {{Todo.Api_HostAddress}}/api/todos/6a5e24bbaf734b4023b46816
 
 ###
 
 ### 10. Dọn sạch toàn bộ các Todo đã hoàn thành (DELETE Clear Completed)
-# Hãy bấm PATCH Toggle vài item lên trạng thái 'true' trước, sau đó chạy lệnh này để xem nó quét sạch thế nào
 DELETE {{Todo.Api_HostAddress}}/api/todos/completed
-GET {{Todo.Api_HostAddress}}/api/todos
+
+###
+
+
+### ==========================================================
+### TẬP 2: TƯƠNG TÁC VỚI REMINDERS (NHẮC NHỞ)
+### ==========================================================
+
+### 11. Lấy danh sách Reminder đang chờ (Pending)
+# Sau khi Bot Scanner chạy (30s), chạy API này để lấy ID của Reminder
+GET {{Todo.Api_HostAddress}}/api/reminders?state=pending
+Accept: application/json
+
+###
+
+### 12. Lấy danh sách Todo sắp tới hạn (Upcoming trong 24h tới)
+# API này query thẳng vào bảng TodoItem
+GET {{Todo.Api_HostAddress}}/api/reminders/upcoming?within=24h
+Accept: application/json
+
+###
+
+### 13. Ngủ nướng (Snooze Reminder)
+# Thay chữ REMINDER_ID_HERE bằng cái "id" lấy được từ kết quả của Bước 11
+PATCH {{Todo.Api_HostAddress}}/api/reminders/6a67fdd65474331f2320ced5/snooze
+Content-Type: application/json
+
+{
+  "minutes": 10
+}
+
+###
+
+### 14. Tắt chuông hoàn toàn (Dismiss Reminder)
+# Thay chữ REMINDER_ID_HERE bằng cái "id" lấy được từ kết quả của Bước 11
+PATCH {{Todo.Api_HostAddress}}/api/reminders/REMINDER_ID_HERE/dismiss
+
+###

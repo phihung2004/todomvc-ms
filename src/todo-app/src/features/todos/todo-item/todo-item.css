@@ -1,0 +1,77 @@
+/* Ép thẻ label gốc thành Flexbox, xếp dọc */
+.todo-label-wrapper {
+  /* Ép padding trên/dưới nhỏ lại để thu gọn chiều cao tổng thể của 1 hàng */
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* Kế thừa font chữ to và màu đậm từ label */
+.todo-title {
+  display: block;
+  line-height: 1.2;
+  font-size: 24px;
+  word-break: break-word;
+}
+
+/* Định dạng ngày giờ nhỏ lại và nhạt màu đi */
+.due-at-badge {
+  display: block;
+  font-size: 15px;
+  font-size: 1;
+  margin-top: 5px;
+
+  color: #888;
+  font-weight: normal; /* Không in đậm */
+}
+
+/* Gạch bỏ và làm mờ nếu đã check xong */
+.completed .due-at-badge {
+  color: #d9d9d9;
+  text-decoration: line-through;
+}
+
+/* Bọc ngoài 2 input, làm mỏ neo (relative) cho cái icon lịch bám vào */
+.edit-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Thằng TodoMVC nó set padding cho thẻ .edit hơi khít. 
+   Mình phải ép nó chừa một khoảng bên phải tầm 50px để cái icon lịch không đè lên chữ */
+.edit-input-wrapper .edit {
+  padding-right: 50px !important;
+}
+
+/* --- BÊ Y NGUYÊN CSS TỪ BÊN INPUT SANG --- */
+.date-icon-picker {
+  position: absolute;
+  right: 15px; /* Căn sát lề phải */
+  top: 0;
+  bottom: 0;
+  margin: auto; /* Căn giữa theo chiều dọc */
+  height: 40px;
+  width: 40px;
+  border: none;
+  background: transparent;
+  color: transparent; /* Tàng hình chữ mm/dd/yyyy */
+  cursor: pointer;
+  outline: none;
+  z-index: 10; /* Đảm bảo nó nổi lên trên ô text để bấm được */
+}
+
+/* Giấu chữ của Date picker gốc */
+.date-icon-picker::-webkit-datetime-edit {
+  display: none;
+}
+
+/* CSS cho cái icon lịch */
+.date-icon-picker::-webkit-calendar-picker-indicator {
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.date-icon-picker::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}

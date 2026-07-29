@@ -11,6 +11,8 @@
         public string Title { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime CreateAt { get; set; }
+        public DateTime? DueAt { get; set; }
+
     }
 
     // Khuôn để nhận request về từ FE, chỉ nhận đúng 1 cái Title
@@ -19,7 +21,7 @@
     public class CreateTodoRequest 
     {
         public string Title { get; set; }
-
+        public DateTime? DueAt { get; set; }
     }
 
     //Cũng là request ở phía FE
@@ -28,6 +30,7 @@
     {
         public string Title { get; set; }
         public bool IsCompleted { get; set; }
+        public DateTime? DueAt { get; set; }
     }
 
 }

@@ -1,5 +1,6 @@
-﻿namespace Todo.Api.Features.Reminders
+﻿namespace Todo.Bff.Features.Reminders
 {
+
     public class ReminderDto
     {
         public string Id { get; set; }              // vì bên Entity tự tạo ID nên bển không viết, nhưng bên này là POLO > viết
@@ -9,6 +10,8 @@
         public DateTime? SnoozeUntil { get; set; }
         public DateTime FiredAt { get; set; }        // lúc scanner phát hiện tới hạn
     }
+
+    public enum ReminderState { Pending, Snoozed, Dismissed }
 
     public class SnoozeReminderRequest
     {

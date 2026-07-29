@@ -13,8 +13,10 @@ namespace Todo.Api.Features.Todos
             //RuleFor(x => x.Address).Length(20, 250);
             //RuleFor(x => x.Postcode).Must(BeAValidPostcode).WithMessage("Please specify a valid postcode");
 
-            RuleFor(x => x.Title).NotEmpty();
-            RuleFor(x => x.Title).MaximumLength(200);
+            RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
+            RuleFor(x => x.DueAt).GreaterThan(DateTime.UtcNow)
+                .When(x => x.DueAt.HasValue)
+                .WithMessage("Due At can't be in the past");
         }
 
         
@@ -25,8 +27,7 @@ namespace Todo.Api.Features.Todos
         public UpdateTodoRequestValidator()
         {          
 
-            RuleFor(x => x.Title).NotEmpty();
-            RuleFor(x => x.Title).MaximumLength(200);
+            RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
         }
         
     }

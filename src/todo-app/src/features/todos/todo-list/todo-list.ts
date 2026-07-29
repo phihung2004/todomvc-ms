@@ -32,8 +32,18 @@ export class TodoList implements OnInit {
     this.store.toggleTodo(id);
   }
 
-  editTodo({ id, title, isCompleted }: { id: string; title: string; isCompleted: boolean }): void {
-    this.store.updateTodo({ id, title, isCompleted });
+  editTodo({
+    id,
+    title,
+    isCompleted,
+    dueAt,
+  }: {
+    id: string;
+    title: string;
+    isCompleted: boolean;
+    dueAt?: string;
+  }): void {
+    this.store.updateTodo({ id, title, isCompleted, dueAt });
   }
 
   toggleAll(event: Event): void {

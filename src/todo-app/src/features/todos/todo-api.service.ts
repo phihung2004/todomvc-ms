@@ -1,23 +1,25 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
-
+import { environment } from '../../core/environments/environment';
 // Khai báo khuôn dữ liệu (y hệt thằng DTO ở BE)
 export interface TodoDto {
   id: string;
   title: string;
   isCompleted: boolean;
   createAt: string;
+  dueAt?: string | Date;
 }
 
 export interface CreateTodoRequest {
   title: string;
+  dueAt?: string | Date;
 }
 
 export interface UpdateTodoRequest {
   title: string;
   isCompleted: boolean;
+  dueAt?: string | Date;
 }
 
 @Injectable({
@@ -26,7 +28,7 @@ export interface UpdateTodoRequest {
 export class TodoApiService {
   // GetById, Create, Update, Toggle, Delete, DeleteCompleted
 
-  private readonly apiUrl = environment.apiUrl;
+  private readonly apiUrl = environment.apiUrl + '/todos';
   //private readonly apiUrl = 'http://localhost:5100/bff/todos';
 
   // Inject HttpClient để gọi API

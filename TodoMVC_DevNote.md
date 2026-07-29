@@ -200,6 +200,14 @@ CLient:
 
 
 
+Note M6-7:
+
+1. Scanner, them thằng reminder, virtical slice. them chức năng mới thì cũng cần can nhắc có cần thay đổi cấu trúc của dự án không
+2. Làm xong M7 thì chuyển sang REPR pattern.
+3. 
+
+
+
 
 
 ### ============================================================ todo-app ===============================
@@ -279,6 +287,18 @@ ng generate environments
 4\. cấu trúc với cú pháp của các event, lấy property thì hơi lạ, với mấy thao tác hành vi của UI thì cần AI để mà nó chỉ hướng mới biết làm.
 
 5\. CSS là quên gần hết rồi, nên dùng luôn cấu trúc mà TodoMVC có sắn.
+
+
+
+
+
+
+
+NOte M6-7 - ha ha, six seven\~
+
+1. Nắm được cấu trúc của 1 Component Store, State > Selector > Updater > Effect
+
+
 
 
 
