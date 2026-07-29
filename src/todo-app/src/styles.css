@@ -1,2 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'todomvc-app-css/index.css';
+
+.todoapp {
+  position: relative; /* Trở thành mỏ neo cho tụi con lơ lửng */
+}
+
+.action-bar-wrapper {
+  position: absolute;
+  top: -45px; /* Đẩy lên trên cái hộp trắng */
+  right: 0; /* Ép sát lề phải */
+  display: flex; /* Dàn hàng ngang */
+  gap: 15px; /* Cách nhau ra 15px cho khỏi dính dấp */
+  z-index: 50;
+}

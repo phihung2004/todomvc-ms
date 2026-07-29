@@ -3,6 +3,7 @@ import { environment } from '../../core/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { EMPTY, Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { TodoDto } from '../todos/todo-api.service';
 
 export interface ReminderDto {
   id: string;
@@ -42,8 +43,8 @@ export class ReminderApiService {
     return this.http.get<ReminderDto[]>(`${this.apiUrl}?state=${state}`);
   }
 
-  getUpcomingReminder(within: string): Observable<ReminderDto[]> {
-    return this.http.get<ReminderDto[]>(`${this.apiUrl}/upcoming?within=${within}`);
+  getUpcomingReminder(within: string): Observable<TodoDto[]> {
+    return this.http.get<TodoDto[]>(`${this.apiUrl}/upcoming?within=${within}`);
   }
 
   snoozeReminder(id: string, minutes: number): Observable<void> {

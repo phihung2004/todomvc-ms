@@ -3,9 +3,11 @@ import { ComponentStore } from '@ngrx/component-store';
 import { ReminderApiService, ReminderDto } from './reminder-api.service';
 import { concatMap, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
+import { TodoDto } from '../todos/todo-api.service';
 
 export interface ReminderState {
   pending: ReminderDto[];
+  upcoming: TodoDto[];
   connected: boolean;
 }
 
@@ -18,6 +20,7 @@ export class ReminderStore extends ComponentStore<ReminderState> {
   constructor() {
     super({
       pending: [],
+      upcoming: [],
       connected: false,
     });
   }
@@ -39,6 +42,12 @@ export class ReminderStore extends ComponentStore<ReminderState> {
   readonly connected$ = this.select((state) => state.connected);
 
   readonly pendingCount$ = this.select(this.pending$, (pending) => pending.length);
+
+  // ++ THÊM MỚI: Lấy danh sách Upcoming ra
+  readonly upcoming$ = this.select((state) => state.upcoming);
+  // ++ THÊM MỚI: Đếm số lượng để lát gắn lên cái chấm đỏ của icon lịch
+  readonly upcomingCount$ = this.select(this.upcoming$, (upcoming) => upcoming.length);
+
   // Updater=======================================================
 
   readonly setPendingReminders = this.updater((state, pending: ReminderDto[]) => ({
@@ -54,6 +63,12 @@ export class ReminderStore extends ComponentStore<ReminderState> {
   readonly removeReminder = this.updater((state, reminderId: string) => ({
     ...state,
     pending: state.pending.filter((pending) => pending.id !== reminderId),
+  }));
+
+  // ++ THÊM MỚI: Hàm vứt data vào kho
+  readonly setUpcoming = this.updater((state, upcoming: TodoDto[]) => ({
+    ...state,
+    upcoming,
   }));
   // Effect========================================================
 
@@ -88,6 +103,21 @@ export class ReminderStore extends ComponentStore<ReminderState> {
           tapResponse(
             () => console.log(`Reminder removed ${id}`),
             (error) => console.error('Error when dismissing:', error),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  // ++ THÊM MỚI: Hàm gọi API kéo list 24h về
+  readonly loadUpcoming = this.effect<void>((trigger$) =>
+    trigger$.pipe(
+      switchMap(() =>
+        this.reminderApiService.getUpcomingReminder('24h').pipe(
+          tapResponse(
+            // Về lý thuyết API này trả về TodoDto[], có vẻ chú viết type nhầm trong service (lát anh nhắc fix sau)
+            (items) => this.setUpcoming(items as any),
+            (error) => console.error('Error loading upcoming:', error),
           ),
         ),
       ),

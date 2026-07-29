@@ -35,6 +35,8 @@ namespace Todo.Api.Features.Reminders
                 return Results.Ok(result);
             });
 
+            // Reminder không hề có tiêu đề
+            // Nên cần mói luôn cả todo mà bằng id mà thằng reminder này đang gắng vào.
             remGroup.MapGet("/upcoming", async (string? within) =>
             {
                 var now = DateTime.UtcNow;

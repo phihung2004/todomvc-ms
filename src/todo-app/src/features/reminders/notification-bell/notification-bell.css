@@ -1,8 +1,5 @@
 .bell-wrapper {
-  position: absolute; /* Rút khỏi luồng HTML, cho lơ lửng */
-  right: 0; /* Ép sát mép phải của cái mỏ neo (.todoapp) */
-  top: -40px; /* Đẩy ngược lên trên đầu cái hộp trắng (chỉnh số này tùy mắt) */
-  z-index: 50; /* Đảm bảo nổi lềnh bềnh trên mọi thứ */
+  position: relative;
 }
 
 .bell-button {
@@ -10,7 +7,7 @@
   border: none;
   cursor: pointer;
   position: relative; /* Làm mỏ neo cho cái chấm đỏ */
-  margin: 0px 30px 0px 0px;
+  /*margin: 0px 30px 0px 0px;*/
 }
 
 /* Chấm đỏ huyền thoại báo Notification */

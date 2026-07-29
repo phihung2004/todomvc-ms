@@ -1,0 +1,82 @@
+.upcoming-wrapper {
+  position: relative;
+}
+
+.calendar-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.calendar-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #007bff; /* Trái với màu đỏ của Pending, upcoming cho màu xanh */
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.panel-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Tăng shadow lên tí cho nó nổi */
+  border-radius: 8px;
+  z-index: 100;
+  overflow: hidden; /* Bắt buộc để cái header không lòi góc nhọn ra ngoài */
+}
+
+.panel-header {
+  background: #f5f5f5;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+  text-align: center;
+  color: #4d4d4d;
+}
+
+.upcoming-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.upcoming-item {
+  padding: 12px 30px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: background-color 0.2s;
+}
+.upcoming-title {
+  font-weight: 500;
+  color: #333;
+}
+
+.upcoming-date {
+  font-size: 12px;
+  color: #007bff; /* Nhấn nhá màu xanh cho nó hợp rơ cái badge */
+}
+
+.empty-msg {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
