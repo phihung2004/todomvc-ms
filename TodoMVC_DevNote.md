@@ -164,6 +164,20 @@ reflect:
 
 
 
+
+
+### **RERP Pattern**
+
+
+
+1. **Mindset vấn giữ ok như thường, thứ mình cần là Gom lại các DTO, Validator vào 1 cái endpoint rồi tách từ từ.**
+2. **chỉ cần kế thừa từ ICarterModule là được, cái mớ trong module giống thì comment lại, vì nó y rang nhau.**
+3. **Làm tời endpoint nào thì test endpoint đó, rồi làm lại hết.**
+
+
+
+
+
 ### ============================================================ Todo.Bff ===============================
 
 
@@ -252,6 +266,16 @@ ng g c features/todos/footer
 
 
 
+ng g c features/reminder-panel/notification-bell
+
+ng g c features/notification-bell/reminder-panel
+
+
+
+
+
+
+
 #### Bước 3: Tạo file Store (NgRx ComponentStore)
 
 ng g s features/todos/todos.store
@@ -297,6 +321,8 @@ ng generate environments
 NOte M6-7 - ha ha, six seven\~
 
 1. Nắm được cấu trúc của 1 Component Store, State > Selector > Updater > Effect
+2. component store là cứ xong Service là chạy qua làm Store, đủ mấy cái bên trên
+3. Xong là về viết từng COmponent ts,html với css của nó là được
 
 
 

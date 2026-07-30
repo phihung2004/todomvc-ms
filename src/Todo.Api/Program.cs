@@ -3,6 +3,7 @@ using FluentValidation;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Todo.Api.Common.Behavior;
+using Todo.Api.Entities;
 using Todo.Api.Features.Reminders;
 using Todo.Api.Features.Todos;
 
@@ -19,7 +20,7 @@ var settings = MongoClientSettings.FromConnectionString(defaultConnectionString)
 
 // Thêm service cho builder bên dưới==================
 builder.Services.AddOpenApi();
-builder.Services.AddAutoMapper(typeof(TodoMappings));
+//builder.Services.AddAutoMapper(typeof(TodoMappings));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddCarter();
 builder.Services.AddHostedService<ReminderScanner>();

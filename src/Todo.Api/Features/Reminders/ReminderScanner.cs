@@ -1,7 +1,5 @@
 ﻿using MongoDB.Entities;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using Todo.Api.Features.Todos;
+using Todo.Api.Entities;
 
 namespace Todo.Api.Features.Reminders
 {

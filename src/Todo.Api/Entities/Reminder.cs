@@ -1,6 +1,6 @@
 ﻿using MongoDB.Entities;
 
-namespace Todo.Api.Features.Reminders
+namespace Todo.Api.Entities
 {
     public class Reminder : Entity
     {

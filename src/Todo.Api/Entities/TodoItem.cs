@@ -1,6 +1,6 @@
 ﻿using MongoDB.Entities;
 
-namespace Todo.Api.Features.Todos
+namespace Todo.Api.Entities
 {
     // Y rang trong file anh Cường cho
     public class TodoItem : Entity

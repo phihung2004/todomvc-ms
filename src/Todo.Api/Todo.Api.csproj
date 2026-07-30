@@ -15,9 +15,4 @@
     <PackageReference Include="MongoDB.Entities" Version="24.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Entities\" />
-  </ItemGroup>
-
 </Project>
