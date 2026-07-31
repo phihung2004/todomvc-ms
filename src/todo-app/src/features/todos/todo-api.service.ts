@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../core/environments/environment';
@@ -9,6 +9,13 @@ export interface TodoDto {
   isCompleted: boolean;
   createAt: string;
   dueAt?: string | Date;
+}
+
+// Hứng BE
+export interface TodoListResponse {
+  items: TodoDto[];
+  totalCount: number;
+  activeCount: number;
 }
 
 export interface CreateTodoRequest {
@@ -35,8 +42,17 @@ export class TodoApiService {
   private http = inject(HttpClient);
 
   // Hàm gọi GET lấy toàn bộ data
-  getTodos(): Observable<TodoDto[]> {
-    return this.http.get<TodoDto[]>(this.apiUrl);
+  getTodos(filter?: string): Observable<TodoListResponse> {
+    // Chưa ổn vì nếu không có filter nào thì nó sẽ gửi về là undefined tahy vì null
+    //return this.http.get<TodoDto[]>(`${this.apiUrl}?filter=${filter}`);
+
+    // Dùng params
+    let params = new HttpParams();
+    if (filter && filter != 'all') {
+      params = params.set('filter', filter);
+    }
+
+    return this.http.get<TodoListResponse>(this.apiUrl, { params });
   }
 
   // Hàm gọi GET lấy toàn bộ data

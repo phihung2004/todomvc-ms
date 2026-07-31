@@ -176,6 +176,14 @@ reflect:
 
 
 
+**MediaR:**
+
+
+
+**Ở toggle todo, đê rkhi có thagnwf toggle thì nó hú qua bên reminder để reminder update thằnh dismiss**
+
+
+
 
 
 ### ============================================================ Todo.Bff ===============================
@@ -211,6 +219,8 @@ CLient:
 1. Là thằng trả về cá thông tin mà nó lấy được từ BE, dùng các Method của HttpClient để gọi API.
 2. nên gói kiểu trả về là HttpResponseMessage vì nó có đầy đủ các thông tin BE trả về cả lỗi.
 3. Vì hiện tại là map 1-1 , dự án nhỏ nên không cần, AI csobaro mốt nhiều gì đó thì nên MAP lại kiểu trả về là 1 DTO nào đó để mà gộp lại mà dùng.
+
+
 
 
 

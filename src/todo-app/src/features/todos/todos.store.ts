@@ -3,7 +3,6 @@ import { TodoApiService, TodoDto } from './todo-api.service';
 import { ComponentStore } from '@ngrx/component-store';
 import { tapResponse } from '@ngrx/operators';
 import { switchMap, concatMap, withLatestFrom, tap, EMPTY } from 'rxjs';
-import { error } from 'console';
 
 export type FilterType = 'all' | 'active' | 'completed';
 
@@ -14,6 +13,8 @@ export interface TodosState {
   filter: FilterType; // Lưu trạng tahis của filter
   loading: boolean; // Lưu biến trạng thái tổng
   error: string | null; // lưu thông báo lỗi
+  totalCount: number; // Thêm mới
+  activeCount: number; // Thêm mới
 }
 
 @Injectable({
@@ -28,6 +29,8 @@ export class TodosStore extends ComponentStore<TodosState> {
       filter: 'all',
       loading: false,
       error: null,
+      totalCount: 0, // Thêm mới
+      activeCount: 0, // Thêm mới
     });
   }
 
@@ -36,18 +39,20 @@ export class TodosStore extends ComponentStore<TodosState> {
   readonly todos$ = this.select((state) => state.todos);
 
   //Trả về số lượng đang active
-  readonly activecount$ = this.select(
-    this.todos$,
-    (todos) => todos.filter((todo) => !todo.isCompleted).length,
-  );
+  // readonly activecount$ = this.select(
+  //   this.todos$,
+  //   (todos) => todos.filter((todo) => !todo.isCompleted).length,
+  // );
+  // Active count giờ không đếm nữa
+  readonly activecount$ = this.select((state) => state.activeCount);
 
   readonly filter$ = this.select((state) => state.filter);
 
-  readonly filteredTodos$ = this.select(this.todos$, this.filter$, (todos, filter) => {
-    if (filter === 'active') return todos.filter((t) => !t.isCompleted);
-    if (filter === 'completed') return todos.filter((t) => t.isCompleted);
-    return todos; // Nếu filter === 'all'
-  });
+  // readonly filteredTodos$ = this.select(this.todos$, this.filter$, (todos, filter) => {
+  //   if (filter === 'active') return todos.filter((t) => !t.isCompleted);
+  //   if (filter === 'completed') return todos.filter((t) => t.isCompleted);
+  //   return todos; // Nếu filter === 'all'
+  // });
 
   readonly loading$ = this.select((state) => state.loading);
 
@@ -60,27 +65,41 @@ export class TodosStore extends ComponentStore<TodosState> {
   );
 
   // Trả về số lượng task đã checked, để dùng cho nút Clear Completed
-  readonly hasCompleted$ = this.select(
-    // Lấy trong State todos mới nhất
-    this.todos$,
-    // (todos) : là toàn bộ data vừa lấy trong State todos
-    // => viết tắt của return
+  // readonly hasCompleted$ = this.select(
+  //   // Lấy trong State todos mới nhất
+  //   this.todos$,
+  //   // (todos) : là toàn bộ data vừa lấy trong State todos
+  //   // => viết tắt của return
 
-    // trong mảng todos, tìm some (todo) mà thằng (todo) đó đúng điều kiện là .isCompleted = true
-    (todos) => todos.some((todo) => todo.isCompleted === true),
-  );
+  //   // trong mảng todos, tìm some (todo) mà thằng (todo) đó đúng điều kiện là .isCompleted = true
+  //   (todos) => todos.some((todo) => todo.isCompleted === true),
+  // );
+  // Khong cần logic tính luôn, lấy về là được
+  readonly hasCompleted$ = this.select((state) => state.totalCount - state.activeCount > 0);
 
-  readonly hasTodo$ = this.select(this.todos$, (todos) => todos.length > 0);
+  //readonly hasTodo$ = this.select(this.todos$, (todos) => todos.length > 0);
+  // lấy từ State
+  readonly hasTodo$ = this.select((state) => state.totalCount > 0);
 
   // Updater============================================
   // Thằng duy nhất sẽ chạm vào cục State - Kho todos trên cùng để sửa.
   // Sẽ là các điều kiện để GIỮ LẠI những cái todos cũ, hoặc thêm mới, hoặc xóa đi, hoặc update lại.
 
   //patch
-  readonly setTodos = this.updater((state, todos: TodoDto[]) => ({
-    ...state,
-    todos: todos,
-  }));
+  // readonly setTodos = this.updater((state, todos: TodoDto[]) => ({
+  //   ...state,
+  //   todos: todos,
+  // }));
+
+  // Đổi kiểu đầu vào của todos thành TodoListResponse
+  readonly setTodos = this.updater(
+    (state, response: import('./todo-api.service').TodoListResponse) => ({
+      ...state,
+      todos: response.items, // Rút đúng cái mảng ra khỏi hộp
+      totalCount: response.totalCount,
+      activeCount: response.activeCount,
+    }),
+  );
 
   // cách đọc thằng updater : Tên_Hàm + <Bơ_Đi> + (Đầu_Vào) + : + Đầu_Ra
   readonly appendTodo = this.updater((state, todo: TodoDto) => ({
@@ -151,9 +170,12 @@ export class TodosStore extends ComponentStore<TodosState> {
   readonly loadTodos = this.effect<void>((trigger$) =>
     trigger$.pipe(
       tap(() => this.setLoading(true)),
+
+      withLatestFrom(this.filter$),
       // Hủy request cũ để lấy cái mới nhất nếu spam. IDK ?
-      switchMap(() =>
-        this.todoApiService.getTodos().pipe(
+      // nó nhận thêm là trigger và cái filter đangchọn
+      switchMap(([_, currentFilter]) =>
+        this.todoApiService.getTodos(currentFilter).pipe(
           tapResponse(
             // không lỗi thì dùng Updater để setTodos
             (todos) => {

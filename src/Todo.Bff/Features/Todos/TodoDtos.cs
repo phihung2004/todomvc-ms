@@ -5,15 +5,15 @@
     // Cần Tittle để hiện
     //Cần bool để hiển thị là xong hay chưa
     //Cần ngày để mà sort
-    public class TodoDto
-    {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public bool IsCompleted { get; set; }
-        public DateTime CreateAt { get; set; }
-        public DateTime? DueAt { get; set; }
+    //public class TodoDto
+    //{
+    //    public string Id { get; set; }
+    //    public string Title { get; set; }
+    //    public bool IsCompleted { get; set; }
+    //    public DateTime CreateAt { get; set; }
+    //    public DateTime? DueAt { get; set; }
 
-    }
+    //}
 
     // Khuôn để nhận request về từ FE, chỉ nhận đúng 1 cái Title
     // vì todo list chỉ cần đúng 1 cái title khi tạo là được
@@ -21,7 +21,7 @@
     public class CreateTodoRequest
     {
         public string Title { get; set; }
-        public DateTime? DueAt { get; set; } 
+        public DateTime? DueAt { get; set; }
     }
 
     //Cũng là request ở phía FE

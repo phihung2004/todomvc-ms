@@ -14,13 +14,17 @@ export class TodoList implements OnInit {
   route = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    this.store.loadTodos();
+    //this.store.loadTodos();
 
     this.route.paramMap.subscribe((param) => {
       const currentFIlter = param.get('filter') as 'all' | 'active' | 'completed';
-      if (currentFIlter) {
-        this.store.setFilter(currentFIlter);
-      }
+      // if (currentFIlter) {
+      //   this.store.setFilter(currentFIlter);
+      // }
+
+      this.store.setFilter(currentFIlter || 'all');
+
+      this.store.loadTodos();
     });
   }
 

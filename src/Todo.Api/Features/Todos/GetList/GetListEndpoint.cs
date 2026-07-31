@@ -6,6 +6,13 @@ using Todo.Api.Entities;
 
 namespace Todo.Api.Features.Todos.GetList
 {
+
+    public record GetListResponse(
+        List<TodoResponse>   Items, // vẫn trả về mớ item như thường, chỉ là gói thêm meta data theo
+        long TotalCount,
+        long ActiveCount
+     );
+
     public class GetListEndpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
@@ -14,6 +21,13 @@ namespace Todo.Api.Features.Todos.GetList
 
             todoGroup.MapGet("", async (string? filter) =>
             {
+
+                // THêm 2 thằng này để lấy từ DB trước, các MetaData cần
+                long totalCount = await DB.CountAsync<TodoItem>(); // đếm Async, hàm mới, nhớ
+
+                long activeCount = await DB.CountAsync<TodoItem>(item => item.IsCompleted == false);
+
+
                 List<TodoItem> items = new List<TodoItem>();
 
                 if (filter == "all" || string.IsNullOrEmpty(filter))
@@ -44,7 +58,9 @@ namespace Todo.Api.Features.Todos.GetList
                     item.DueAt
                 )).ToList();
 
-                return Results.Ok(responseList);
+                var response = new GetListResponse(responseList, totalCount,activeCount);
+
+                return Results.Ok(response);
             });
 
         }
