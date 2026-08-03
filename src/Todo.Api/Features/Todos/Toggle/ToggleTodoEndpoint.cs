@@ -10,30 +10,17 @@ namespace Todo.Api.Features.Todos.Toggle
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var todoGroup = app.MapGroup("/api/todos");
-
-            todoGroup.MapPatch("/{id}/toggle", async (string id, IMediator mediator) =>
+            app.MapPatch("/api/todos/{id}/toggle", async (string id, IMediator mediator) =>
             {
-                var item = await DB.Find<TodoItem>().OneAsync(id);
+                var command = new ToggleTodoCommand(id);
+                var success = await mediator.Send(command);
 
-                if (item == null)
+                if (!success)
                 {
-                    return Results.NotFound();
+                    return Results.Problem(detail: "Todo Item Not Found", statusCode: StatusCodes.Status404NotFound);
                 }
 
-                item.IsCompleted = !item.IsCompleted;
-
-                await item.SaveAsync();
-
-                // thêm thằng Meiator để mà hú event để bên Reminderchinhr lại reminder item mỗi khi toggle todo 
-                await mediator.Publish(new TodoStateChangedNotification
-                {
-                    TodoId = id,
-                    IsDeletedOrCompleted = true
-                });
-
                 return Results.NoContent();
-
             });
         }
     }

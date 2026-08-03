@@ -4,7 +4,8 @@ using MediatR;
 namespace Todo.Api.Common.Behavior
 {
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+        where TRequest : notnull // IRequest<TResponse> là cho bản cũng 11- DÙng để chỉ nhận những thằng đã kế thừa IRequest mới vào validation này được.
+        // ICommandBase : Của ông Millan gì đó trên doc. Ông tự tạo 1 class riêng. Nên không làm theo cũng được. Basic đc r.
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -17,6 +18,7 @@ namespace Todo.Api.Common.Behavior
         {
             if (!_validators.Any()) return await next();
 
+            // Lấy request để check
             var context = new ValidationContext<TRequest>(request);
 
             var validationFailures = await Task.WhenAll(

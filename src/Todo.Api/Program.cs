@@ -3,6 +3,7 @@ using FluentValidation;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Todo.Api.Common.Behavior;
+using Todo.Api.Common.Exceptions;
 using Todo.Api.Entities;
 using Todo.Api.Features.Reminders;
 using Todo.Api.Features.Todos;
@@ -24,6 +25,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddCarter();
 builder.Services.AddHostedService<ReminderScanner>();
+
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddProblemDetails(); // Khai báo cho app biết sẽ dùng chuẩn ProblemDetails
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
@@ -40,6 +44,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseExceptionHandler();
 
 await DB.InitAsync("todo_mongo", settings);
 

@@ -1,69 +1,30 @@
 ﻿using Carter;
-using FluentValidation;
-using MongoDB.Entities;
-using Todo.Api.Entities;
+using MediatR;
 
-namespace Todo.Api.Features.Todos.Update
+namespace Todo.Api.Features.Todos.Update;
+
+public class UpdateTodoEndpoint : ICarterModule
 {
-    public record UpdateTodoRequest
-       (
-            string Title,
-            bool IsCompleted,
-            DateTime? DueAt
-       );
-
-    //public record UpdateTodoResponse
-    //(
-    //    string Id,
-    //    string Title,
-    //    DateTime CreateAt,
-    //    DateTime? DueAt,
-    //    bool IsCompleted
-    //);
-
-    public class UpdateTodoRequestValidator : AbstractValidator<UpdateTodoRequest>
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        public UpdateTodoRequestValidator()
+        app.MapPut("/api/todos/{id}", async (string id, UpdateTodoRequest request, IMediator mediator) =>
         {
+            var command = new UpdateTodoCommand(
+                id,
+                request.Title,
+                request.IsCompleted,
+                request.DueAt
+            );
 
-            RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
-        }
+            var success = await mediator.Send(command);
 
-    }
-
-    public class UpdateTodoEndpoint : ICarterModule
-    {
-        public void AddRoutes(IEndpointRouteBuilder app)
-        {
-            var todoGroup = app.MapGroup("/api/todos");
-
-            todoGroup.MapPut("/{id}", async (string id, UpdateTodoRequest request, IValidator<UpdateTodoRequest> validator) =>
+            // Handler trả về false nghĩa là query DB không ra item nào
+            if (!success)
             {
-                var validationResult = await validator.ValidateAsync(request);
+                return Results.NotFound();
+            }
 
-                if (!validationResult.IsValid)
-                {
-                    return Results.ValidationProblem(validationResult.ToDictionary());
-                }
-
-                bool isExist = await DB.Find<TodoItem>().MatchID(id).ExecuteAnyAsync();
-
-                if (!isExist)
-                {
-                    return Results.NotFound();
-                }
-
-                await DB.Update<TodoItem>()
-                        .MatchID(id)
-                        .Modify(i => i.Title, request.Title)
-                        .Modify(i => i.IsCompleted, request.IsCompleted)
-                        .Modify(i => i.DueAt, request.DueAt)
-                        .ExecuteAsync();
-
-                return Results.NoContent();
-
-            });
-
-        }
+            return Results.NoContent();
+        });
     }
 }

@@ -13,6 +13,9 @@ export class TodoList implements OnInit {
   store = inject(TodosStore);
   route = inject(ActivatedRoute);
 
+  // Todo: Lấy được active count và completed count từ store
+  // NHƯNG khi toggle/toggle all lên store thì active count không update lại
+  // Cần phải subscribe vào store để lấy được active count và completed count mới nhất
   ngOnInit(): void {
     //this.store.loadTodos();
 

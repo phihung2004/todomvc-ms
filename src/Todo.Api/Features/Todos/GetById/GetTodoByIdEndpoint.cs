@@ -1,4 +1,5 @@
 ﻿using Carter;
+using MediatR;
 using MongoDB.Entities;
 using Todo.Api.Common;
 using Todo.Api.Entities;
@@ -9,29 +10,16 @@ namespace Todo.Api.Features.Todos.GetById
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            var todoGroup = app.MapGroup("/api/todos");
-
-            todoGroup.MapGet("/{id}", async (string id) =>
+            app.MapGet("/api/todos/{id}", async (string id, IMediator mediator) =>
             {
-                // Nếu chỉ để như vầy thì nó đúng là đã find luôn, nhưng không gán vào đâu để show ra hết
-                //await DB.Find<TodoItem>().OneAsync(id);
+                var query = new GetTodoByIdQuery(id);
 
+                var response = await mediator.Send(query);
 
-                // Như dưới này thì có thằng hứng là item, rồi return lại bên dưới băng Ok(item)
-                var item = await DB.Find<TodoItem>().OneAsync(id);
-
-                if (item == null)
+                if (response == null)
                 {
-                    return Results.NotFound();
+                    return Results.Problem(detail: "Todo Item Not Found", statusCode: StatusCodes.Status404NotFound);
                 }
-
-                var response = new TodoResponse(
-                    item.ID,
-                    item.Title,
-                    item.IsCompleted,
-                    item.CreateAt,
-                    item.DueAt
-                );
 
                 return Results.Ok(response);
             });

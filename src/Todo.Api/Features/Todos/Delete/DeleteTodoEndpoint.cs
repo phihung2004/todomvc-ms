@@ -9,29 +9,19 @@ namespace Todo.Api.Features.Todos.Delete
     public class DeleteTodoEndpoint : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
-        {
-            var todoGroup = app.MapGroup("/api/todos");
-
-            todoGroup.MapDelete("/{id}", async (string id, IMediator mediator) =>
+        {  
+            app.MapDelete("/api/todos/{id}", async (string id, IMediator mediator) =>
             {
-                var item = await DB.Find<TodoItem>().OneAsync(id);
+                // Tạo command từ request
+                var command = new DeleteTodoCommand(id);
 
-                if (item == null)
+                // TÙy cái thao tác CRUD đang dùng mà nhận biến cho đúng.
+                var isDeleted = await mediator.Send(command);
+
+                if (!isDeleted)
                 {
-                    // Return lại theo kiểu thông thường, Notfound: một Body trống rỗng kèm mã 404
-                    //return Results.NotFound();
-
-                    return Results.Problem(detail: "Todo Item Not Found", statusCode: StatusCodes.Status404NotFound);
+                    return Results.Problem(detail: "Todo Item Not found", statusCode: StatusCodes.Status404NotFound);
                 }
-
-                await item.DeleteAsync();
-
-                // thêm thằng Meiator để mà hú event để bên Reminderchinhr lại reminder item mỗi khi todo bị xóa
-                await mediator.Publish(new TodoStateChangedNotification
-                {
-                    TodoId = id,
-                    IsDeletedOrCompleted = true
-                });
 
                 return Results.NoContent();
 

@@ -200,22 +200,40 @@ export class TodosStore extends ComponentStore<TodosState> {
       concatMap((payload) => {
         const trimmedTitle = payload.title.trim();
 
-        if (!trimmedTitle) {
-          this.setError('Todo can not leave emty!');
-          return EMPTY; // Báo lỗi xong thì Dừng luồng (EMPTY), không gọi API nữa.
-        }
+        // if (!trimmedTitle) {
+        //   this.setError('Todo can not leave emty!');
+        //   return EMPTY; // Báo lỗi xong thì Dừng luồng (EMPTY), không gọi API nữa.
+        // }
 
-        if (trimmedTitle.length > 200) {
-          this.setError('Todo title no more than 200 characters!');
-          return EMPTY;
-        }
+        // if (trimmedTitle.length > 200) {
+        //   this.setError('Todo title no more than 200 characters!');
+        //   return EMPTY;
+        // }
 
         this.setError(null);
 
         return this.todoApiService.createTodo({ title: trimmedTitle, dueAt: payload.dueAt }).pipe(
           tapResponse(
             (newTodo) => this.appendTodo(newTodo), // Thành công: Nhét vào mảng
-            (error) => this.setError('Error creating todo'),
+            // (error) => this.setError('Error creating todo'),
+            (error: any) => {
+              console.log('Lỗi từ BE:', error); // Log ra console để xem
+
+              // Bóc tách JSON ProblemDetails của BE
+              // Thường Angular HttpClient sẽ nhét cái body lỗi vào properties `error`
+              // Khớp với code BE của ông: problemDetails.Extensions["errors"]
+              const beErrors = error.error?.errors;
+
+              if (beErrors && beErrors.length > 0) {
+                // Lấy cái Message của lỗi đầu tiên (Sẽ là câu "...skibidi" của ông)
+                // Lưu ý: JSON deserialize có thể biến chữ hoa thành chữ thường (Message -> message)
+                const errorMessage = beErrors[0].Message || beErrors[0].message;
+                this.setError(errorMessage);
+              } else {
+                // Nếu BE lỗi gì khác (sập server, rớt mạng...)
+                this.setError('Error creating todo from Server');
+              }
+            },
           ),
         );
       }),
