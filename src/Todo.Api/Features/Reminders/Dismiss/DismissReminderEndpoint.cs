@@ -1,39 +1,24 @@
 ﻿using Carter;
-using MongoDB.Entities;
-using Todo.Api.Entities;
+using MediatR;
 
-namespace Todo.Api.Features.Reminders.Dismiss
+namespace Todo.Api.Features.Reminders.Dismiss;
+
+public class DismissReminderEndpoint : ICarterModule
 {
-    public class DismissReminderEndpoint : ICarterModule
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-
-        public void AddRoutes(IEndpointRouteBuilder app)
+        app.MapPatch("/api/reminders/{id}/dismiss", async (string id, IMediator mediator) =>
         {
-            var remGroup = app.MapGroup("/api/reminders");
+            var command = new DismissReminderCommand(id);
 
+            var success = await mediator.Send(command);
 
-            remGroup.MapPatch("/{id}/dismiss", async (string id) => {
-                var reminder = await DB.Find<Reminder>().OneAsync(id);
+            if (!success)
+            {
+                return Results.NotFound();
+            }
 
-                if (reminder == null)
-                {
-                    return Results.NotFound();
-                }
-
-                reminder.State = ReminderState.Dismissed;
-
-                //await reminder.SaveAsync();
-                // Update như bên dưới thì sẽ xịn hơn
-
-                // Gợi ý sửa cho DismissReminderEndpoint
-                await DB.Update<Reminder>()
-                    .MatchID(id)
-                    .Modify(r => r.State, ReminderState.Dismissed)
-                    .ExecuteAsync();
-
-                return Results.NoContent();
-            });
-
-        }
+            return Results.NoContent();
+        });
     }
 }

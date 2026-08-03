@@ -1,44 +1,19 @@
 ﻿using Carter;
-using MongoDB.Entities;
-using Todo.Api.Common;
-using Todo.Api.Entities;
+using MediatR;
 
-namespace Todo.Api.Features.Reminders.GetUpcoming
+namespace Todo.Api.Features.Reminders.GetUpcoming;
+
+public class GetUpcomingEndpoint : ICarterModule
 {
-    public class GetUpcomingEndpoint : ICarterModule
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        public void AddRoutes(IEndpointRouteBuilder app)
+        app.MapGet("/api/reminders/upcoming", async (string? within, IMediator mediator) =>
         {
-            var remGroup = app.MapGroup("/api/reminders");
+            var query = new GetUpcomingQuery(within);
 
-            // Reminder không hề có tiêu đề
-            // Nên cần mói luôn cả todo mà bằng id mà thằng reminder này đang gắng vào.
-            remGroup.MapGet("/upcoming", async (string? within) =>
-            {
-                var now = DateTime.UtcNow;
+            var result = await mediator.Send(query);
 
-                var next24h = now.AddHours(24);
-
-                List<TodoItem> items = new List<TodoItem>();
-
-                items = await DB.Find<TodoItem>()
-                .Match(t => t.IsCompleted == false)
-                .Match(t => t.DueAt > now)
-                .Match(t => t.DueAt < next24h)
-                .ExecuteAsync();
-
-                var responses = items.Select(item => new TodoResponse(
-                    item.ID,
-                    item.Title,
-                    item.IsCompleted,
-                    item.CreateAt,
-                    item.DueAt
-                )).ToList();
-
-                return Results.Ok(responses);
-
-            });
-
-        }
+            return Results.Ok(result);
+        });
     }
 }

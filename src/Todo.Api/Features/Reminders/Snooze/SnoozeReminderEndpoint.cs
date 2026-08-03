@@ -1,58 +1,25 @@
 ﻿using Carter;
-using FluentValidation;
-using MongoDB.Entities;
-using Todo.Api.Entities;
+using MediatR;
 
-namespace Todo.Api.Features.Reminders.Snooze
+namespace Todo.Api.Features.Reminders.Snooze;
+
+public class SnoozeReminderEndpoint : ICarterModule
 {
-    public record SnoozeReminderRequest(int Minutes);
-    public class SnoozeReminderRequestValidator : AbstractValidator<SnoozeReminderRequest>
+    // Wow, cái này gọn vl
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        public SnoozeReminderRequestValidator()
+        app.MapPatch("/api/reminders/{id}/snooze", async (string id, SnoozeReminderRequest request, IMediator mediator) =>
         {
-            // Validator của gà :)))
-            //RuleFor(x => x.Minutes).GreaterThan(9).LessThan(61);
+            var command = new SnoozeReminderCommand(id, request.Minutes);
 
-            // Có validation riêng cho vụ từ phút nào tới phút nào luôn
-            RuleFor(x => x.Minutes)
-                .InclusiveBetween(10, 60)
-                .WithMessage("Snooze minutes must be between 10 and 60");
-        }
-    }
+            var success = await mediator.Send(command);
 
-    public class SnoozeReminderEndpoint : ICarterModule
-    {
-        public void AddRoutes(IEndpointRouteBuilder app)
-        {
-            var remGroup = app.MapGroup("/api/reminders");
+            if (!success)
+            {
+                return Results.NotFound();
+            }
 
-            remGroup.MapPatch("/{id}/snooze", async (string id, SnoozeReminderRequest request, IValidator<SnoozeReminderRequest> validator) => {
-
-                var validationResult = await validator.ValidateAsync(request);
-
-                if (!validationResult.IsValid)
-                {
-                    return Results.ValidationProblem(validationResult.ToDictionary());
-                }
-
-                var reminder = await DB.Find<Reminder>().OneAsync(id);
-
-                if (reminder == null)
-                {
-                    return Results.NotFound();
-                }
-
-                await DB.Update<Reminder>()
-                .MatchID(id)
-                .Modify(r => r.State, ReminderState.Snoozed)
-                .Modify(r => r.SnoozeUntil, DateTime.UtcNow.AddMinutes(request.Minutes))
-                .ExecuteAsync();
-
-                return Results.NoContent();
-
-
-            });
-
-        }
+            return Results.NoContent();
+        });
     }
 }
