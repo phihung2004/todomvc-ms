@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 import { ReminderApiService, ReminderDto } from './reminder-api.service';
-import { concatMap, switchMap, tap } from 'rxjs';
+import { concatMap, switchMap, tap, withLatestFrom } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { TodoDto } from '../todos/todo-api.service';
 
@@ -70,24 +70,65 @@ export class ReminderStore extends ComponentStore<ReminderState> {
     ...state,
     upcoming,
   }));
+
+  // Soo, khi mình snooze là mình cũng xóa mẹ nó cái remindeer trên FE, nên lỗi không snooze được reminder mà remindeer đó bị xóa rồi.
+  // Nên cần có 1 thằng rollback
+  readonly restoreReminder = this.updater((state, reminder: ReminderDto) => ({
+    ...state,
+    pending: [...state.pending, reminder],
+  }));
+
   // Effect========================================================
+
+  // CỤM EFFECT =========================================================
 
   readonly snoozeTodo = this.effect<{ id: string; minutes: number }>((payload$) =>
     payload$.pipe(
-      tap((payload) => this.removeReminder(payload.id)),
+      // BƯỚC 1: Phải "chụp lén" lại danh sách pending hiện tại trước khi xóa
+      withLatestFrom(this.pending$),
+      concatMap(([payload, pendingList]) => {
+        // Tìm và copy cái reminder sắp bị xóa ra một biến tạm (để làm lốp dự phòng)
+        const backupReminder = pendingList.find((r) => r.id === payload.id);
 
-      concatMap((payload) =>
-        this.reminderApiService.snoozeReminder(payload.id, payload.minutes).pipe(
+        // BƯỚC 2: Optimistic Update - Xóa luôn trên UI cho mượt
+        this.removeReminder(payload.id);
+
+        // BƯỚC 3: Xếp hàng gọi API
+        return this.reminderApiService.snoozeReminder(payload.id, payload.minutes).pipe(
           tapResponse(
             () => console.log(`Đã cho reminder ${payload.id} ngủ thêm ${payload.minutes} phút`),
-            (error) => {
+            (error: any) => {
               console.error('Error when snooze:', error);
-              // Nếu làm kỹ, chỗ này mạng sập thì mình bốc lại cái reminder thả vào Store.
-              // Nhưng app hiện tại cứ log ra là đủ xài rồi.
+
+              // --- BÓC TÁCH LỖI PROBLEM DETAILS CỦA BACKEND C# ---
+              let errorMessage = 'Unknown error from backend';
+
+              // Thường FluentValidation trong Minimal APIs sẽ nhét lỗi vào property 'errors'
+              const beErrors = error.error?.errors;
+
+              if (beErrors) {
+                // Ví dụ BE trả về: { "errors": { "Minutes": ["Snooze minutes must be between 10 and 60"] } }
+                // Lấy cái key lỗi đầu tiên ra
+                const firstErrorKey = Object.keys(beErrors)[0];
+                errorMessage = beErrors[firstErrorKey][0];
+              } else if (error.error?.title) {
+                // Lỗi chung chung của ProblemDetails
+                errorMessage = error.error.title;
+              } else if (error.error?.detail) {
+                errorMessage = error.error.detail;
+              }
+
+              // Bắn Alert thông báo thẳng mặt user
+              alert(`Can't Snooze:\n${errorMessage}`);
+
+              // BƯỚC 4: ROLLBACK UI - Đắp cái lốp dự phòng vào lại Store
+              if (backupReminder) {
+                this.restoreReminder(backupReminder);
+              }
             },
           ),
-        ),
-      ),
+        );
+      }),
     ),
   );
 

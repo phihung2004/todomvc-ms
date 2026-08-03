@@ -1,0 +1,67 @@
+:host {
+  display: block;
+}
+
+.reminder-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ededed;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Tăng gap lên xíu cho thoáng */
+}
+
+/* Xóa viền item cuối cùng cho sạch */
+.reminder-item:last-child {
+  border-bottom: none;
+}
+
+/* Gom cụm title và ngày tháng lại */
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todo-title {
+  color: #4d4d4d;
+  font-size: 15px;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.due-date {
+  font-size: 12px;
+  color: #b83f45; /* Đỏ đô chuẩn TodoMVC */
+  font-weight: 300;
+}
+
+.actions {
+  display: flex;
+  gap: 8px; /* Khoảng cách giữa các nút */
+}
+
+/* Nút bấm làm giống style của nút Filter */
+.btn-snooze,
+.btn-dismiss {
+  margin: 0;
+  padding: 4px 8px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 300;
+  transition: all 0.2s;
+}
+
+.btn-snooze:hover,
+.btn-dismiss:hover {
+  border-color: rgba(175, 47, 47, 0.2);
+  color: #4d4d4d;
+}
+
+.btn-dismiss:hover {
+  color: #b83f45;
+}

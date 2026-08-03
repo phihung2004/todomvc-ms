@@ -13,21 +13,15 @@ export class TodoList implements OnInit {
   store = inject(TodosStore);
   route = inject(ActivatedRoute);
 
-  // Todo: Lấy được active count và completed count từ store
-  // NHƯNG khi toggle/toggle all lên store thì active count không update lại
-  // Cần phải subscribe vào store để lấy được active count và completed count mới nhất
   ngOnInit(): void {
-    //this.store.loadTodos();
+    // Kéo toàn bộ data 1 lần duy nhất vào State
+    this.store.loadTodos();
 
+    // Nghe URL đổi: Chỉ cập nhật trạng thái Filter trong store.
+    // Selector `filteredTodos$` sẽ tự động chạy và lọc list trên UI (0ms latency, không gọi BE).
     this.route.paramMap.subscribe((param) => {
-      const currentFIlter = param.get('filter') as 'all' | 'active' | 'completed';
-      // if (currentFIlter) {
-      //   this.store.setFilter(currentFIlter);
-      // }
-
-      this.store.setFilter(currentFIlter || 'all');
-
-      this.store.loadTodos();
+      const currentFilter = param.get('filter') as 'all' | 'active' | 'completed';
+      this.store.setFilter(currentFilter || 'all');
     });
   }
 

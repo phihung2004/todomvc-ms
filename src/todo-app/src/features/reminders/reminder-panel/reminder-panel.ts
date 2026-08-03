@@ -1,7 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ReminderStore } from '../reminder.store';
-import { TodosStore } from '../../todos/todos.store';
-import { map, Observable } from 'rxjs';
 import { AsyncPipe, DatePipe } from '@angular/common';
 
 @Component({
@@ -10,28 +8,18 @@ import { AsyncPipe, DatePipe } from '@angular/common';
   templateUrl: './reminder-panel.html',
   styleUrl: './reminder-panel.css',
 })
-export class ReminderPanel {
-  readonly reminderStore = inject(ReminderStore);
+export class ReminderPanel implements OnInit {
+  readonly store = inject(ReminderStore);
 
-  // Inject thêm anh bạn hàng xóm vào để mượn data
-  private readonly todoStore = inject(TodosStore);
+  // Khởi tạo trạng thái ĐÓNG
+  isPanelOpen = false;
 
-  // Trick "Hỏi đường": Đưa ID vào, lục trong mảng todos tìm ra Title
-  getTodoTitle(todoId: string): Observable<string> {
-    return this.todoStore.todos$.pipe(
-      map((todos) => {
-        const found = todos.find((t) => t.id === todoId);
-        return found ? found.title : 'Đang tải (hoặc đã xóa)...';
-      }),
-    );
+  ngOnInit() {
+    this.store.loadUpcoming();
   }
 
-  // Ép kiểu string từ HTML về Number rồi quăng cho Store
-  snooze(id: string, minutes: string) {
-    this.reminderStore.snoozeTodo({ id, minutes: Number(minutes) });
-  }
-
-  dismiss(id: string) {
-    this.reminderStore.dismissReminder(id);
+  // Hàm bật/tắt bảng
+  togglePanel() {
+    this.isPanelOpen = !this.isPanelOpen;
   }
 }

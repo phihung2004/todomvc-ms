@@ -1,20 +1,65 @@
+/* Làm mỏ neo chứa nút và dropdown */
+.upcoming-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-right: 15px; /* Giãn ra một chút để không dính sát rạt vào cái chuông */
+}
+
+/* Style cho cái nút bấm icon Lịch */
+.calendar-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  color: #4d4d4d;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.calendar-button:hover {
+  color: #b83f45;
+}
+
+/* Chấm đỏ số việc 24h */
+.badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: #b83f45;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* Biến panel thành một bảng nổi (Dropdown) */
 .panel-container {
-  background: white;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  border: 1px solid #eee;
-  overflow: hidden;
+  position: absolute; /* Quan trọng: Rút khỏi luồng UI tĩnh */
+  top: 100%; /* Nằm ngay dưới đít nút bấm */
+  right: 0; /* Căn lề phải */
+  z-index: 100; /* Đè lên danh sách Todo */
+  margin-top: 10px;
+
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  box-shadow:
+    0 2px 4px 0 rgba(0, 0, 0, 0.2),
+    0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  width: 320px;
 }
 
 .panel-header {
-  background-color: #f8f9fa;
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #f6f6f6;
 }
 
 .panel-header h3 {
   margin: 0;
   font-size: 14px;
-  color: #333;
+  color: #4d4d4d;
+  font-weight: 300;
 }
 
 .reminder-list {
@@ -26,67 +71,33 @@
 }
 
 .reminder-item {
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 15px;
+  border-bottom: 1px solid #ededed;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
+}
+
+.reminder-item:last-child {
+  border-bottom: none;
 }
 
 .todo-title {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 15px;
   color: #4d4d4d;
+  word-break: break-word;
 }
 
 .due-date {
   font-size: 12px;
-  color: #d9534f; /* Báo đỏ cho nó rén */
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 5px;
-}
-
-.snooze-input {
-  width: 50px;
-  padding: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.min-label {
-  font-size: 12px;
-  color: #888;
-}
-
-.btn-snooze,
-.btn-dismiss {
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.btn-snooze {
-  background-color: #f0ad4e;
-  color: white;
-}
-
-.btn-dismiss {
-  background-color: #5cb85c;
-  color: white;
+  color: #b83f45;
+  font-weight: 300;
 }
 
 .empty-msg {
   padding: 20px;
   text-align: center;
-  color: #888;
+  color: #777;
   font-style: italic;
+  font-size: 13px;
 }

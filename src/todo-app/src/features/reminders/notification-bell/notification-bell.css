@@ -1,33 +1,76 @@
 .bell-wrapper {
   position: relative;
+  display: inline-block;
 }
 
 .bell-button {
   background: transparent;
   border: none;
   cursor: pointer;
-  position: relative; /* Làm mỏ neo cho cái chấm đỏ */
-  /*margin: 0px 30px 0px 0px;*/
+  position: relative;
+  color: #4d4d4d; /* Màu chữ xám chuẩn TodoMVC */
+  padding: 5px;
+  transition: color 0.2s;
 }
 
-/* Chấm đỏ huyền thoại báo Notification */
+.bell-button:hover {
+  color: #b83f45; /* Đỏ đô khi hover */
+}
+
+/* Chấm đỏ mượt mà, bớt gắt */
 .badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: red;
+  top: 0px;
+  right: 0px;
+  background-color: #b83f45; /* Màu đỏ chủ đạo của TodoMVC */
   color: white;
   border-radius: 50%;
   padding: 2px 6px;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 400;
 }
 
-/* Bảng xổ xuống */
+/* Bảng xổ xuống - Mang style của tờ giấy TodoMVC */
 .panel-dropdown {
   position: absolute;
-  top: 100%; /* Rớt xuống ngay dưới đít cái chuông */
-  right: 0; /* Canh lề phải theo cái chuông */
-  width: 320px; /* Độ rộng của bảng thông báo */
+  top: 100%;
+  right: 0;
+  width: 350px;
   z-index: 100;
+  margin-top: 10px;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  /* Đổ bóng y hệt cái khung Todo list chính */
+  box-shadow:
+    0 2px 4px 0 rgba(0, 0, 0, 0.2),
+    0 25px 50px 0 rgba(0, 0, 0, 0.1);
+}
+
+.panel-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #f6f6f6; /* Màu nền của footer TodoMVC */
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #4d4d4d;
+  font-weight: 300;
+}
+
+.reminder-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.empty-msg {
+  padding: 20px 15px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  font-weight: 300;
 }

@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Reminders\ReminderDtos.cs" />
+    <Compile Remove="Features\Reminders\ReminderMapping.cs" />
+    <Compile Remove="Features\Reminders\RemindersModule.cs" />
+    <Compile Remove="Features\Reminders\ReminderValidators.cs" />
+    <Compile Remove="Features\Todos\TodoDtos.cs" />
+    <Compile Remove="Features\Todos\TodoMappings.cs" />
+    <Compile Remove="Features\Todos\TodosModule.cs" />
+    <Compile Remove="Features\Todos\TodoValidators.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Carter" Version="10.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />

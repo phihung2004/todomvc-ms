@@ -1,27 +1,44 @@
-<div class="panel-container">
-  <div class="panel-header">
-    <h3>Task overdue!</h3>
-  </div>
-
-  <ul class="reminder-list">
-    <!-- Duyệt qua mảng thông báo -->
-    @for (item of reminderStore.pending$ | async; track item.id) {
-      <li class="reminder-item">
-        <!-- Dùng trick hàm getTodoTitle kết hợp AsyncPipe để moi tên ra -->
-        <span class="todo-title">{{ getTodoTitle(item.todoId) | async }}</span>
-        <span class="due-date">Hẹn lúc: {{ item.dueAt | date: 'short' }}</span>
-
-        <div class="actions">
-          <!-- Đặt id #snoozeMin để lôi giá trị ra gán vào hàm click -->
-          <input #snoozeMin type="number" class="snooze-input" min="10" max="60" value="10" />
-          <span class="min-label">phút</span>
-
-          <button class="btn-snooze" (click)="snooze(item.id, snoozeMin.value)">Snooze</button>
-          <button class="btn-dismiss" (click)="dismiss(item.id)">Dismiss</button>
-        </div>
-      </li>
-    } @empty {
-      <li class="empty-msg">Overdue taks empty</li>
+<div class="upcoming-wrapper">
+  <!-- Nút Cuốn Lịch -->
+  <button class="calendar-button" (click)="togglePanel()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      style="width: 24px; height: 24px"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+      />
+    </svg>
+    <!-- Hiện chấm đỏ số việc 24h -->
+    @if ((store.upcomingCount$ | async)! > 0) {
+      <span class="badge">{{ store.upcomingCount$ | async }}</span>
     }
-  </ul>
+  </button>
+
+  <!-- Điều kiện ẩn/hiện bảng Dropdown -->
+  @if (isPanelOpen) {
+    <div class="panel-container">
+      <div class="panel-header">
+        <h3>Upcoming (24h)</h3>
+      </div>
+
+      <ul class="reminder-list">
+        <!-- Duyệt qua mảng upcoming -->
+        @for (item of store.upcoming$ | async; track item.id) {
+          <li class="reminder-item">
+            <span class="todo-title">{{ item.title }}</span>
+            <span class="due-date">Due: {{ item.dueAt | date: 'short' }}</span>
+          </li>
+        } @empty {
+          <li class="empty-msg">No upcoming tasks in 24h</li>
+        }
+      </ul>
+    </div>
+  }
 </div>

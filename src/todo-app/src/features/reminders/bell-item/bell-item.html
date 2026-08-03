@@ -1,0 +1,15 @@
+<li class="reminder-item">
+  <div class="header-info">
+    <!-- Dùng dấu () vì title và item giờ là signals -->
+    <span class="todo-title">{{ title() }}</span>
+    <span class="due-date">Hẹn lúc: {{ item().dueAt | date: 'short' }}</span>
+  </div>
+
+  <div class="actions">
+    <!-- Nút fix cứng, không lằng nhằng -->
+    <button class="btn-snooze" (click)="onSnooze(10)">Snooze 10m</button>
+    <button class="btn-snooze" (click)="onSnooze(60)">Snooze 1h</button>
+
+    <button class="btn-dismiss" (click)="onDismiss()">Dismiss</button>
+  </div>
+</li>

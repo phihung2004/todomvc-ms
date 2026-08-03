@@ -39,6 +39,7 @@ export class ReminderApiService {
   private platformId = inject(PLATFORM_ID);
 
   // wtf,đem cái ?state về BE như nào
+  // À... chuỗi lội suy :))
   getPendingReminder(state: string): Observable<ReminderDto[]> {
     return this.http.get<ReminderDto[]>(`${this.apiUrl}?state=${state}`);
   }

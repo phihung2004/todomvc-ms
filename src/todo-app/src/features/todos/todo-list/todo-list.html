@@ -11,7 +11,7 @@
   }
 
   <ul class="todo-list">
-    @for (item of store.todos$ | async; track item.id) {
+    @for (item of store.filteredTodos$ | async; track item.id) {
       <app-todo-item
         [todo]="item"
         (itemToDelete)="deleteTodo($event)"
