@@ -69,12 +69,10 @@ export class TodosStore extends ComponentStore<TodosState> {
   // Sẽ là các điều kiện để GIỮ LẠI những cái todos cũ, hoặc thêm mới, hoặc xóa đi, hoặc update lại.
 
   // Đổi kiểu đầu vào của todos thành TodoListResponse
-  readonly setTodos = this.updater(
-    (state, response: import('./todo-api.service').TodoListResponse) => ({
-      ...state,
-      todos: response.items, // Rút đúng cái mảng ra khỏi hộp
-    }),
-  );
+  readonly setTodos = this.updater((state, response: import('./todo-api.service').TodoDto[]) => ({
+    ...state,
+    todos: response, // Rút đúng cái mảng ra khỏi hộp
+  }));
 
   // cách đọc thằng updater : Tên_Hàm + <Bơ_Đi> + (Đầu_Vào) + : + Đầu_Ra
   readonly appendTodo = this.updater((state, todo: TodoDto) => ({

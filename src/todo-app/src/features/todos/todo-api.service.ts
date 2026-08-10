@@ -10,14 +10,6 @@ export interface TodoDto {
   createAt: string;
   dueAt?: string | Date;
 }
-
-// Hứng BE
-export interface TodoListResponse {
-  items: TodoDto[];
-  totalCount: number;
-  activeCount: number;
-}
-
 export interface CreateTodoRequest {
   title: string;
   dueAt?: string | Date;
@@ -42,7 +34,7 @@ export class TodoApiService {
   private http = inject(HttpClient);
 
   // Hàm gọi GET lấy toàn bộ data
-  getTodos(filter?: string): Observable<TodoListResponse> {
+  getTodos(filter?: string): Observable<TodoDto[]> {
     // Chưa ổn vì nếu không có filter nào thì nó sẽ gửi về là undefined tahy vì null
     //return this.http.get<TodoDto[]>(`${this.apiUrl}?filter=${filter}`);
 
@@ -52,7 +44,7 @@ export class TodoApiService {
       params = params.set('filter', filter);
     }
 
-    return this.http.get<TodoListResponse>(this.apiUrl, { params });
+    return this.http.get<TodoDto[]>(this.apiUrl, { params });
   }
 
   // Hàm gọi GET lấy toàn bộ data
