@@ -4,15 +4,11 @@ using Todo.Api.Entities;
 
 namespace Todo.Api.Features.Todos.GetList
 {
-    public class GetListHandler : IRequestHandler<GetListQuery, GetListResponse>
+    public class GetListHandler : IRequestHandler<GetListQuery, List<GetListResponse>>
     {
-        public async Task<GetListResponse> Handle(GetListQuery request, CancellationToken cancellationToken)
+        public async Task<List<GetListResponse>> Handle(GetListQuery request, CancellationToken cancellationToken)
         {
-            // Đếm trước tổng số lượng và số task chưa làm để nhét vào metadata trả về chung một lượt.
-            // Cách này giúp Frontend không phải gọi thêm API rời chỉ để lấy số liệu vẽ lên các bộ đếm.
-            long totalCount = await DB.CountAsync<TodoItem>(cancellation: cancellationToken);
-            long activeCount = await DB.CountAsync<TodoItem>(item => item.IsCompleted == false, cancellation: cancellationToken);
-
+           
             List<TodoItem> items;
 
             // Chặn điều kiện ngay từ lúc chọc xuống DB bằng hàm Match để chỉ kéo những data thực sự cần thiết về RAM.
@@ -35,7 +31,7 @@ namespace Todo.Api.Features.Todos.GetList
                 items = await DB.Find<TodoItem>().ExecuteAsync(cancellationToken);
             }
 
-            var responseList = items.Select(item => new TodoItemResponse(
+            var responseList = items.Select(item => new GetListResponse(
                 item.ID,
                 item.Title,
                 item.IsCompleted,
@@ -43,7 +39,8 @@ namespace Todo.Api.Features.Todos.GetList
                 item.DueAt
             )).ToList();
 
-            return new GetListResponse(responseList, totalCount, activeCount);
+            //return new GetListResponse(responseList, totalCount, activeCount);
+            return responseList;
         }
     }
 }

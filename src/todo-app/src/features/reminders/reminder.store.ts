@@ -150,7 +150,7 @@ export class ReminderStore extends ComponentStore<ReminderState> {
     ),
   );
 
-  // ++ THÊM MỚI: Hàm gọi API kéo list 24h về
+  //Hàm gọi API kéo list 24h về
   readonly loadUpcoming = this.effect<void>((trigger$) =>
     trigger$.pipe(
       switchMap(() =>

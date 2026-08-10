@@ -67,7 +67,8 @@ export class ReminderApiService {
       // Mở van nước từ BFF
       const eventSource = new EventSource(`${this.apiUrl}/stream`);
 
-      // Bắt sự kiện mỗi khi BFF bơm nước (data) xuống
+      // Bắt sự kiện mỗi khi BFF bơm nước (data) xuống/
+      // Khi BE nó Flush ra một cục JSON, EventSource sẽ tự động nhận và gọi hàm này.
       eventSource.onmessage = (event) => {
         // EventSource chạy ngầm ở ngoài, nên phải bế nó vào trong NgZone
         // để Angular biết mà update UI (nếu không UI sẽ bị đơ dù data đã về)

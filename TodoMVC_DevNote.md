@@ -186,6 +186,102 @@ reflect:
 
 
 
+### **DB Aggregation COde** 
+
+
+
+
+
+Bước 1: Setup các mốc thời gian (Time anchors)
+
+Trang bị sẵn vũ khí trước khi ra trận. Bro cần khai báo các mốc thời gian sau để làm điều kiện lọc cho DB:
+
+
+
+Lấy thời gian hiện tại (nên dùng chuẩn UTC).
+
+
+
+Lấy mốc "Hôm nay" (chỉ lấy ngày, cắt bỏ phần giờ phút giây).
+
+
+
+Dùng công thức toán học tính lùi lại để tìm ra chính xác mốc "Thứ Hai của tuần này" (dùng cho thống kê trong tuần).
+
+
+
+Tính lùi 7 ngày từ hôm nay để làm mốc cho biểu đồ.
+
+
+
+Bước 2: Dàn trận các truy vấn đếm số (Scalar Counts)
+
+Ở bước này, bro sẽ định nghĩa các câu lệnh đếm (CountAsync) nhưng tuyệt đối chưa dùng từ khóa await. Việc này giống như bro đang đưa order cho nhà bếp nhưng chưa bắt họ nấu ngay.
+
+
+
+Total: Đếm tất cả, không cần điều kiện.
+
+
+
+Active: Đếm các item có cờ hoàn thành là false.
+
+
+
+Completed: Đếm các item có cờ hoàn thành là true.
+
+
+
+Overdue: Kết hợp 2 điều kiện: chưa hoàn thành VÀ hạn chót (DueAt) nhỏ hơn thời gian hiện tại.
+
+
+
+CompletedToday: Đã hoàn thành VÀ thời gian tạo (hoặc thời gian hoàn thành nếu bro có field đó) lớn hơn hoặc bằng mốc "Hôm nay".
+
+
+
+CompletedThisWeek: Đã hoàn thành VÀ thời gian >= mốc "Thứ Hai".
+
+
+
+Bước 3: Kích hoạt chạy song song \& Tính toán phụ
+
+Dùng Task.WhenAll(...) và await nó. Đây là lúc bro ném tất cả các order ở Bước 2 xuống DB cùng một lúc để nó đếm song song, giúp giảm thời gian chờ.
+
+
+
+Sau khi có kết quả, viết logic tính Completion Rate (Tỷ lệ hoàn thành). Lưu ý sống còn: Nhớ bọc điều kiện kiểm tra Total = 0 để chương trình không nổ tung vì lỗi chia cho số 0. Cẩn thận ép kiểu về số thực (double) trước khi chia.
+
+
+
+Bước 4: Khai mở Aggregation Pipeline (Gom nhóm biểu đồ)
+
+Đây là phần não to nhất. Bro cần mở ống .Aggregate() và cho dữ liệu đi qua 2 trạm lọc:
+
+
+
+Trạm 1 - Lọc (Match): Chặn cửa, chỉ cho phép những Task ĐÃ hoàn thành VÀ nằm trong khoảng 7 ngày qua đi tiếp.
+
+
+
+Trạm 2 - Gom nhóm (Group): Phân loại dữ liệu. Bro sẽ gom nhóm chúng bằng một key ẩn danh bao gồm 3 thông số: Năm, Tháng, Ngày. Cứ mỗi nhóm được tạo ra, bro gọi hàm đếm tổng số lượng phần tử của nhóm đó.
+
+
+
+Cuối cùng, await và ép nó thành một List.
+
+
+
+Bước 5: Đóng gói và Giao hàng (Mapping \& Response)
+
+Lấy cái List vừa gom được ở Bước 4, dùng vòng lặp hoặc LINQ .Select() để map nó sang dạng DailyCountDto chuẩn mà FE yêu cầu (nhớ chuyển đổi các cụm Năm-Tháng-Ngày thành kiểu DateOnly cho đẹp).
+
+
+
+Khởi tạo object StatsOverviewResponse, nhồi tất cả các con số đếm được ở Bước 3 và cái List biểu đồ vừa map xong vào, rồi return về cho Endpoint.
+
+
+
 ### ============================================================ Todo.Bff ===============================
 
 

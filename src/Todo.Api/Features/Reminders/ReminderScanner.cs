@@ -11,8 +11,8 @@ namespace Todo.Api.Features.Reminders
             while (!stoppingToken.IsCancellationRequested)
             {
                 await DoWork(stoppingToken);
-                // Nghỉ 30 như yêu cầu
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                // Nghỉ 30 như yêu cầu. Để 5 giây cho nhanh chút
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
 
         }

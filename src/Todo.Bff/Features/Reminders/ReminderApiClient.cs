@@ -10,6 +10,11 @@
             _client = client;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
         public async Task<HttpResponseMessage> GetPendingReminderAsync (string? state)
         {
             return await _client.GetAsync($"/api/reminders?state={state}");
