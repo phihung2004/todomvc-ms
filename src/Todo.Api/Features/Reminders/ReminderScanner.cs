@@ -48,11 +48,15 @@ namespace Todo.Api.Features.Reminders
                 // Cần tìm danh sách các todo đã có reminder, để lọc ngược lại mấy thằng không có.
                 // Từ Danh sách ID của các Reminder > lấy danh sách ID todo nó đang gắng vào
                 // KQ: Danh sách ID các todo đã có Reminder
+                
                 var existingTodoIdsWithReminders = existingReminders.Select(r => r.TodoId).ToList();
 
 
                 // Cần tìm các todo đã quá hạn mà không có reminder để mà từ đó thêm reminder vào.
                 // KQ: tìm các todo không có reminder, để lấy id và thông tin cơ bản để mà tạo thêm 1 reminder từ
+
+         
+
                 var newReminders = overdueTodos
                     .Where(t => !existingTodoIdsWithReminders.Contains(t.ID)) // chọn mấy thằng todo chưa có reminder
                     .Select(t => new Reminder // lấy full todo ra, để lấy property của tụi nó để tạo mới Reminder.
@@ -67,11 +71,17 @@ namespace Todo.Api.Features.Reminders
                 {
                     await newReminders.SaveAsync(cancellation: stoppingToken);
                 }
+
+                //=========================================================================================================
+                // => Só, nguyên cái cục bự chảng bên trên chỉ dùng để TÌM TODO QUÁ HẠN + KHÔNG CÓ REMINDER
+                // ASB Schedule : I Can Fix That
+                // Todo nào DueAt nổ 1 cái, là có cầm đúng ID của Todo đó mà đi tạo Reminder, không cần cào DB
+                // Không cần lược qua lược lại 1 đống
+                //=========================================================================================================
             }
 
 
             // Công việc 2: CHuyển mấy reminder đã snooze quá hạn từ Snoozed về Pending
-
             await DB.Update<Reminder>()
                 .Match(r => r.SnoozeUntil <= now && r.State == ReminderState.Snoozed)
                 .Modify(r => r.SnoozeUntil , null)
