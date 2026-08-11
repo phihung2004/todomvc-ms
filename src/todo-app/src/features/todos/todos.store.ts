@@ -3,6 +3,7 @@ import { TodoApiService, TodoDto } from './todo-api.service';
 import { ComponentStore } from '@ngrx/component-store';
 import { tapResponse } from '@ngrx/operators';
 import { switchMap, concatMap, withLatestFrom, tap, EMPTY } from 'rxjs';
+import { ReminderStore } from '../reminders/reminder.store';
 
 export type FilterType = 'all' | 'active' | 'completed';
 
@@ -20,6 +21,7 @@ export interface TodosState {
 })
 export class TodosStore extends ComponentStore<TodosState> {
   private readonly todoApiService = inject(TodoApiService);
+  private readonly reminderStore = inject(ReminderStore);
 
   constructor() {
     super({
@@ -181,7 +183,10 @@ export class TodosStore extends ComponentStore<TodosState> {
 
         return this.todoApiService.createTodo({ title: trimmedTitle, dueAt: payload.dueAt }).pipe(
           tapResponse(
-            (newTodo) => this.appendTodo(newTodo), // Thành công: Nhét vào mảng
+            (newTodo) => {
+              this.appendTodo(newTodo); // Thành công: Nhét vào mảng
+              this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+            },
             // (error) => this.setError('Error creating todo'),
             (error: any) => {
               console.log('Lỗi từ BE:', error); // Log ra console để xem
@@ -215,9 +220,10 @@ export class TodosStore extends ComponentStore<TodosState> {
     dueAt?: string;
   }>((payload$) =>
     payload$.pipe(
-      tap((payload) =>
-        this.editTodoInStore({ id: payload.id, title: payload.title, dueAt: payload.dueAt }),
-      ),
+      tap((payload) => {
+        (this.editTodoInStore({ id: payload.id, title: payload.title, dueAt: payload.dueAt }),
+          this.setError(null));
+      }),
 
       concatMap((payload) =>
         this.todoApiService
@@ -228,10 +234,25 @@ export class TodosStore extends ComponentStore<TodosState> {
           })
           .pipe(
             tapResponse(
-              () => console.log('Đã lưu Title mới xuống Backend!'),
-              (error) => {
+              () => {
+                console.log('Đã lưu Title mới xuống Backend!');
+                this.reminderStore.loadUpcoming();
+              },
+              (error: any) => {
                 console.error('Error updating todo:', error);
+
+                // Rollback UI (Tải lại list từ server để đè lại cái UI vừa bị sửa lụi)
                 this.loadTodos();
+
+                // BÓC TÁCH LỖI (Y hệt createTodo)
+                const beErrors = error.error?.errors;
+
+                if (beErrors && beErrors.length > 0) {
+                  const errorMessage = beErrors[0].Message || beErrors[0].message;
+                  this.setError(errorMessage); // Quăng lỗi lên header
+                } else {
+                  this.setError('Error updating todo from Server');
+                }
               },
             ),
           ),
@@ -275,6 +296,7 @@ export class TodosStore extends ComponentStore<TodosState> {
             // Nếu API báo 204 Thành công: Hê hê, tao lừa user update UI từ bước 1 rồi, nên giờ chả cần làm gì cả.
             () => {
               console.log('Đã đồng bộ trạng thái Toggle với Server');
+              this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
             },
 
             // Nếu API báo LỖI (Vd: sập mạng): Chết dở!
@@ -331,7 +353,10 @@ export class TodosStore extends ComponentStore<TodosState> {
       concatMap((id) =>
         this.todoApiService.deleteTodo(id).pipe(
           tapResponse(
-            () => this.removeTodoFromStore(id), // Thành công thì rút nó ra khỏi danh sách UI
+            () => {
+              this.removeTodoFromStore(id); // Thành công thì rút nó ra khỏi danh sách UI
+              this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+            },
             (error) => console.error('Error deleting todo:', error),
           ),
         ),
@@ -345,7 +370,10 @@ export class TodosStore extends ComponentStore<TodosState> {
       concatMap(() =>
         this.todoApiService.deleteCompleted().pipe(
           tapResponse(
-            () => this.removeCompletedTodosFromStore(), // Quét sạch UI
+            () => {
+              this.removeCompletedTodosFromStore(); // Quét sạch UI
+              this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+            },
             (error) => console.error('Error clearing completed todos:', error),
           ),
         ),

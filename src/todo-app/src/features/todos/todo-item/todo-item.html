@@ -27,6 +27,7 @@
         [value]="todo().title"
         (keyup.enter)="submitEdit(editTitle.value, editDate.value)"
         (keyup.escape)="cancelEdit()"
+        (input)="errorToClear.emit()"
         autofocus
       />
 
@@ -36,6 +37,7 @@
         type="datetime-local"
         [value]="todo().dueAt ? (todo().dueAt | date: 'yyyy-MM-ddTHH:mm') : ''"
         (keyup.enter)="submitEdit(editTitle.value, editDate.value)"
+        (input)="errorToClear.emit()"
       />
     </div>
   }

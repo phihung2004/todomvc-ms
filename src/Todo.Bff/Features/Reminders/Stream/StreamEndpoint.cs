@@ -25,26 +25,21 @@ namespace Todo.Bff.Features.Reminders.Stream
 
                 // 2. Bọc try-catch để hứng lúc ống nước bị gãy do FE F5 hoặc tắt Tab
                 try
-                { 
-                    while (!ct.IsCancellationRequested)
+                {
+                    // Mở 1 lần duy nhất — không còn vòng lặp tự gọi lại như bản polling cũ
+                    await using var apiStream = await client.GetReminderStreamAsync(ct);
+                    using var reader = new StreamReader(apiStream);
+
+                    // Đọc từng dòng Api chảy xuống, relay y nguyên xuống FE
+                    while (!reader.EndOfStream && !ct.IsCancellationRequested)
                     {
-                        var response = await client.GetPendingReminderAsync("pending");
+                        var line = await reader.ReadLineAsync(ct);
 
-                        if (response.IsSuccessStatusCode)
+                        if (line is not null)
                         {
-                            // Lấy được mớ Pending Reminder thì gói thành JSon
-                            var jsonRaw = await response.Content.ReadAsStringAsync(ct);
-
-                            // Trường dữ liệu phải như format bên dưới
-                            // Gói mớ JSOn lại đúng với format bên dưới.
-                            var sseData = $"data: {jsonRaw}\n\n";
-
-                            await ctx.Response.WriteAsync(sseData, ct);
+                            await ctx.Response.WriteAsync(line + "\n", ct);
                             await ctx.Response.Body.FlushAsync(ct);
                         }
-
-                        // Nếu FE tắt tab lúc BE đang ngủ 10 giây, hàm này sẽ nổ ra TaskCanceledException
-                        await Task.Delay(TimeSpan.FromSeconds(10), ct);
                     }
                 }
                 // Hứng lỗi CancellationToken bị kích hoạt hủy
@@ -62,3 +57,27 @@ namespace Todo.Bff.Features.Reminders.Stream
         }
     }
 }
+
+
+
+// Cục Polling , không dùng nữa 
+//while (!ct.IsCancellationRequested)
+//{
+//    var response = await client.GetPendingReminderAsync("pending");
+
+//    if (response.IsSuccessStatusCode)
+//    {
+//        // Lấy được mớ Pending Reminder thì gói thành JSon
+//        var jsonRaw = await response.Content.ReadAsStringAsync(ct);
+
+//        // Trường dữ liệu phải như format bên dưới
+//        // Gói mớ JSOn lại đúng với format bên dưới.
+//        var sseData = $"data: {jsonRaw}\n\n";
+
+//        await ctx.Response.WriteAsync(sseData, ct);
+//        await ctx.Response.Body.FlushAsync(ct);
+//    }
+
+//    // Nếu FE tắt tab lúc BE đang ngủ 10 giây, hàm này sẽ nổ ra TaskCanceledException
+//    await Task.Delay(TimeSpan.FromSeconds(10), ct);
+//}

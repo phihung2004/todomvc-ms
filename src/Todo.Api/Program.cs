@@ -1,3 +1,4 @@
+using Azure.Messaging.ServiceBus;
 using Carter;
 using FluentValidation;
 using MongoDB.Driver;
@@ -6,6 +7,7 @@ using Todo.Api.Common.Behavior;
 using Todo.Api.Common.Exceptions;
 using Todo.Api.Entities;
 using Todo.Api.Features.Reminders;
+using Todo.Api.Features.Reminders.Messaging;
 using Todo.Api.Features.Todos;
 
 
@@ -14,17 +16,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 var defaultConnectionString =
    builder.Configuration.GetValue<string>("ConnectionStrings:MongoDB");
-
+var settings = MongoClientSettings.FromConnectionString(defaultConnectionString);
 //Console.WriteLine(defaultConnectionString);
 
-var settings = MongoClientSettings.FromConnectionString(defaultConnectionString);
+var sbConnectionString = builder.Configuration.GetValue<string>("ConnectionStrings:ServiceBus");
+builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
+builder.Services.AddSingleton<ReminderScheduler>();
+builder.Services.AddSingleton<ReminderStreamChannel>();
+
 
 // Thêm service cho builder bên dưới==================
 builder.Services.AddOpenApi();
 //builder.Services.AddAutoMapper(typeof(TodoMappings));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddCarter();
-builder.Services.AddHostedService<ReminderScanner>();
+//builder.Services.AddHostedService<ReminderScanner>();
+builder.Services.AddHostedService<ReminderProcessor>();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddProblemDetails(); // Khai báo cho app biết sẽ dùng chuẩn ProblemDetails
@@ -53,6 +60,11 @@ await DB.InitAsync("todo_mongo", settings);
 await DB.Index<TodoItem>()
     .Key(t => t.IsCompleted, KeyType.Ascending)
     .Key(t => t.DueAt, KeyType.Ascending)
+    .CreateAsync();
+// Rây con đí sần, mới test cái đầu tiên đã nổ bà nó r. Cần có Unique Index để mà khắc phục vụ này.
+await DB.Index<Reminder>()
+    .Key(r => r.TodoId, KeyType.Ascending)
+    .Option(o => o.Unique = true)
     .CreateAsync();
 
 app.MapCarter();
