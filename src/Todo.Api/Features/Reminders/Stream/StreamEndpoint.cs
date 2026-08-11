@@ -19,13 +19,17 @@ namespace Todo.Api.Features.Reminders.Stream
                 ctx.Response.Headers.Append("Cache-Control", "no-cache");
                 ctx.Response.Headers.Append("Connection", "keep-alive");
 
+                // Mỗi connection tự có 1 "hộp thư" riêng — không còn share chung 1 Reader
+                // giữa nhiều client như trước, tránh tình trạng tín hiệu bị connection khác cướp mất.
+                var reader = streamChannel.Subscribe();
+
                 try
                 {
                     // Đẩy 1 lần ngay lúc mới connect, để client có data ngay, không phải chờ tín hiệu đầu tiên
                     await PushPendingReminders(mediator, ctx, ct);
 
                     // ReadAllAsync tự "await" cho tới khi có tín hiệu mới — KHÔNG polling, không Task.Delay
-                    await foreach (var _ in streamChannel.Reader.ReadAllAsync(ct))
+                    await foreach (var _ in reader.ReadAllAsync(ct))
                     {
                         await PushPendingReminders(mediator, ctx, ct);
                     }
@@ -33,6 +37,18 @@ namespace Todo.Api.Features.Reminders.Stream
                 catch (OperationCanceledException)
                 {
                     Console.WriteLine("[Api] Client dropped SSE connection peacefully.");
+                }
+                catch (Exception ex)
+                {
+                    // Lỗi khác (VD ghi vào socket Bff đã đóng) — log rõ ràng thay vì để tuột
+                    // vào catch OperationCanceledException hoặc chết lặng.
+                    Console.WriteLine($"[Api] SSE Stream failed: {ex.Message}");
+                }
+                finally
+                {
+                    // Bắt buộc phải dọn — không unsub thì mỗi lần client reconnect (F5, EventSource
+                    // tự retry...) lại thêm 1 subscriber chết vào list, rò rỉ dần theo thời gian.
+                    streamChannel.Unsubscribe(reader);
                 }
             });
         }

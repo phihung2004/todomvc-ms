@@ -65,7 +65,7 @@ export class ReminderStore extends ComponentStore<ReminderState> {
     pending: state.pending.filter((pending) => pending.id !== reminderId),
   }));
 
-  // ++ THÊM MỚI: Hàm vứt data vào kho
+  // Hàm vứt data vào kho
   readonly setUpcoming = this.updater((state, upcoming: TodoDto[]) => ({
     ...state,
     upcoming,
@@ -76,6 +76,12 @@ export class ReminderStore extends ComponentStore<ReminderState> {
   readonly restoreReminder = this.updater((state, reminder: ReminderDto) => ({
     ...state,
     pending: [...state.pending, reminder],
+  }));
+
+  // Quét sạch mọi Reminder rác bằng ID của Todo bị xóa
+  readonly removeReminderByTodoId = this.updater((state, todoId: string) => ({
+    ...state,
+    pending: state.pending.filter((pending) => pending.todoId !== todoId), // <-- So sánh bằng pending.todoId
   }));
 
   // Effect========================================================

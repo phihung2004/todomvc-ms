@@ -10,5 +10,6 @@ namespace Todo.Api.Entities
         public DateTime CreateAt { get; set; }
         public DateTime? DueAt { get; set; }
         public long? ReminderSequenceNumber { get; set; } // Dùng cho ASB Schedule Message
+        public DateTime? CompletedAt { get; set; } // Dùng cho feature Statistic 
     }
 }

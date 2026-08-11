@@ -12,8 +12,7 @@ namespace Todo.Api.Features.Reminders
         private ServiceBusProcessor? _processor;
         private readonly ReminderStreamChannel _streamChannel;
 
-
-        public ReminderProcessor(ServiceBusClient sbClient, ReminderStreamChannel streamChannel)  // THÊM tham số
+        public ReminderProcessor(ServiceBusClient sbClient, ReminderStreamChannel streamChannel)
         {
             _sbClient = sbClient;
             _streamChannel = streamChannel;
@@ -29,14 +28,14 @@ namespace Todo.Api.Features.Reminders
             await _processor.StartProcessingAsync(stoppingToken);
 
             // ExecuteAsync return là stop luôn BackgroundService, nên phải treo ở đây
-            // để processor (chạy nền riêng) còn cơ hội tiếp tục sống. IDK...
+            // để processor (chạy nền riêng) còn cơ hội tiếp tục sống. 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         private async Task HandleMessageAsync(ProcessMessageEventArgs args)
         {
             var payload = JsonSerializer.Deserialize<ReminderDueMessage>(args.Message.Body);
-            //Ý nghĩa: "tôi (dev) biết chắc biến này không null tại đây, compiler đừng cảnh báo nữa".
+            // Ý nghĩa: "tôi (dev) biết chắc biến này không null tại đây, compiler đừng cảnh báo nữa".
             var todoId = payload!.TodoId;
 
             var todo = await DB.Find<TodoItem>()
@@ -46,7 +45,7 @@ namespace Todo.Api.Features.Reminders
             // Todo không tồn tại (đã bị xóa) hoặc đã hoàn thành trước khi tới hạn -> bỏ qua
             if (todo is null || todo.IsCompleted)
             {
-                Console.WriteLine($"[ReminderProcessor] Bỏ qua TodoId={todoId} (null hoặc đã completed)");
+                Console.WriteLine($"[ReminderProcessor] Skipped TodoId={todoId} (not found or already completed)");
                 await args.CompleteMessageAsync(args.Message);
                 return;
             }
@@ -69,20 +68,19 @@ namespace Todo.Api.Features.Reminders
                 try
                 {
                     await reminder.SaveAsync(cancellation: args.CancellationToken);
-                    Console.WriteLine($"[ReminderProcessor] Đã tạo Reminder cho TodoId={todoId} lúc {DateTime.Now:HH:mm:ss}");
+                    Console.WriteLine($"[ReminderProcessor] Created Reminder for TodoId={todoId} at {DateTime.Now:HH:mm:ss}");
 
-                    // Hú
+                    // Hú FE qua SSE
                     _streamChannel.NotifyNewReminder();
                 }
                 catch (MongoDB.Driver.MongoWriteException ex) when (ex.WriteError.Category == MongoDB.Driver.ServerErrorCategory.DuplicateKey)
                 {
-                    Console.WriteLine($"[ReminderProcessor] TodoId={todoId} đã có Reminder (duplicate, bỏ qua an toàn)");
+                    Console.WriteLine($"[ReminderProcessor] TodoId={todoId} already has a Reminder (duplicate key, safely ignored)");
                 }
-
             }
             else
             {
-                Console.WriteLine($"[ReminderProcessor] TodoId={todoId} đã có Reminder từ trước, bỏ qua");
+                Console.WriteLine($"[ReminderProcessor] TodoId={todoId} already has a Reminder, skipping");
             }
 
             await args.CompleteMessageAsync(args.Message);
@@ -93,6 +91,5 @@ namespace Todo.Api.Features.Reminders
             Console.WriteLine($"[ReminderProcessor] Error: {args.Exception.Message}");
             return Task.CompletedTask;
         }
-
     }
 }
