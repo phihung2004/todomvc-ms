@@ -4,15 +4,27 @@ namespace Todo.Api.Features.Reminders.Messaging
 {
     public class ReminderStreamChannel
     {
-        private readonly Channel<bool> _channel = Channel.CreateUnbounded<bool>();
+        private readonly List<Channel<bool>> _subscribers = new();
+        private readonly object _lock = new();
 
-        public ChannelWriter<bool> Writer => _channel.Writer;
-        public ChannelReader<bool> Reader => _channel.Reader;
+        public ChannelReader<bool> Subscribe()
+        {
+            var ch = Channel.CreateUnbounded<bool>();
+            lock (_lock) { _subscribers.Add(ch); }
+            return ch.Reader;
+        }
+
+        public void Unsubscribe(ChannelReader<bool> reader)
+        {
+            lock (_lock) { _subscribers.RemoveAll(s => s.Reader == reader); }
+        }
 
         public void NotifyNewReminder()
         {
-            // TryWrite không chờ, không throw nếu channel đầy — phù hợp vì đây chỉ là tín hiệu, không phải data quan trọng cần đảm bảo tới nơi
-            _channel.Writer.TryWrite(true);
+            lock (_lock)
+            {
+                foreach (var s in _subscribers) s.Writer.TryWrite(true);
+            }
         }
     }
 }

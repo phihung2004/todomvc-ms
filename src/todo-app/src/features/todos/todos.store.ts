@@ -297,6 +297,7 @@ export class TodosStore extends ComponentStore<TodosState> {
             () => {
               console.log('Đã đồng bộ trạng thái Toggle với Server');
               this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+              this.reminderStore.removeReminderByTodoId(id);
             },
 
             // Nếu API báo LỖI (Vd: sập mạng): Chết dở!
@@ -356,6 +357,7 @@ export class TodosStore extends ComponentStore<TodosState> {
             () => {
               this.removeTodoFromStore(id); // Thành công thì rút nó ra khỏi danh sách UI
               this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+              this.reminderStore.removeReminderByTodoId(id);
             },
             (error) => console.error('Error deleting todo:', error),
           ),
@@ -364,20 +366,29 @@ export class TodosStore extends ComponentStore<TodosState> {
     ),
   );
 
-  // cứ gọi là chạy, không có tham số
   readonly clearCompleted = this.effect<void>((trigger$) =>
     trigger$.pipe(
-      concatMap(() =>
-        this.todoApiService.deleteCompleted().pipe(
+      // Chụp mảng todos hiện tại trước khi đem đi tiêu hủy
+      withLatestFrom(this.todos$),
+      concatMap(([_, todos]) => {
+        // Lọc ra danh sách ID của mấy thằng đã hoàn thành
+        const completedIds = todos.filter((t) => t.isCompleted).map((t) => t.id);
+
+        return this.todoApiService.deleteCompleted().pipe(
           tapResponse(
             () => {
-              this.removeCompletedTodosFromStore(); // Quét sạch UI
-              this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+              this.removeCompletedTodosFromStore(); // Quét sạch UI Todo
+              this.reminderStore.loadUpcoming(); // Tải lại lịch
+
+              // Chạy vòng lặp hốt rác trên chuông cho từng thằng ID bị xóa
+              completedIds.forEach((id) => {
+                this.reminderStore.removeReminderByTodoId(id);
+              });
             },
             (error) => console.error('Error clearing completed todos:', error),
           ),
-        ),
-      ),
+        );
+      }),
     ),
   );
 
