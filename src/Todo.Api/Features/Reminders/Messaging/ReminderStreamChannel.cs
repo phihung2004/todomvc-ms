@@ -2,6 +2,8 @@
 
 namespace Todo.Api.Features.Reminders.Messaging
 {
+    // Todo: Đang nhờ AI làm cái Push notification bằn cái channel bên dưới
+    // Sẽ nghiên cứu và đổi thành SignalR để làm SSE
     public class ReminderStreamChannel
     {
         private readonly List<Channel<bool>> _subscribers = new();
