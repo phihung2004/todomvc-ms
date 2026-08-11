@@ -20,14 +20,17 @@ export class TodoItem {
   itemToDelete = output<string>();
   itemToToggle = output<string>();
   itemToEdit = output<{ id: string; title: string; isCompleted: boolean; dueAt?: string }>();
+  errorToClear = output<void>();
 
   // Khi nhấn nút Edit, nó sẽ bật chế độ edit
   startEdit(): void {
     this.isEditing = true;
+    this.errorToClear.emit();
   }
 
   cancelEdit(): void {
     this.isEditing = false;
+    this.errorToClear.emit();
   }
 
   submitEdit(newTitle: string, newDate: string): void {

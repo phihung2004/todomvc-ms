@@ -9,5 +9,6 @@ namespace Todo.Api.Entities
         public bool IsCompleted { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? DueAt { get; set; }
+        public long? ReminderSequenceNumber { get; set; } // Dùng cho ASB Schedule Message
     }
 }

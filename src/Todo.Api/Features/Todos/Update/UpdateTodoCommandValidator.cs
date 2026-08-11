@@ -8,11 +8,13 @@ namespace Todo.Api.Features.Todos.Update
     {
         public UpdateTodoCommandValidator()
         {
-            RuleFor(x => x.Id).NotEmpty();
-
             RuleFor(x => x.Title)
-                .NotEmpty()
-                .MaximumLength(200);
+                .NotEmpty().WithMessage("Title can't be empty")
+                .MaximumLength(200).WithMessage("Title must 200 char MAX");
+
+            RuleFor(x => x.DueAt).GreaterThan(DateTime.UtcNow)
+                .When(x => x.DueAt.HasValue)
+                .WithMessage("Due At can't be in the past");
         }
     }
 }

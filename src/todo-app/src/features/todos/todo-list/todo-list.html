@@ -17,6 +17,7 @@
         (itemToDelete)="deleteTodo($event)"
         (itemToToggle)="toggleItem($event)"
         (itemToEdit)="editTodo($event)"
+        (errorToClear)="store.setError(null)"
       ></app-todo-item>
     }
   </ul>

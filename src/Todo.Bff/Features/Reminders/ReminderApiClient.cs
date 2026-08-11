@@ -10,11 +10,7 @@
             _client = client;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
+      
         public async Task<HttpResponseMessage> GetPendingReminderAsync (string? state)
         {
             return await _client.GetAsync($"/api/reminders?state={state}");
@@ -34,6 +30,19 @@
         public async Task<HttpResponseMessage> DismissReminderAsync(string id)
         {
             return await _client.PatchAsync($"/api/reminders/{id}/dismiss", null);
+        }
+
+        // MỚI — mở kết nối streaming tới Api, không chờ full response như các method trên
+        public async Task<System.IO.Stream> GetReminderStreamAsync(CancellationToken ct)
+        {
+            var response = await _client.GetAsync(
+                "/api/reminders/stream",
+                HttpCompletionOption.ResponseHeadersRead,  // chỉ đợi header, không đợi body đóng
+                ct);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStreamAsync(ct);
         }
 
     }
