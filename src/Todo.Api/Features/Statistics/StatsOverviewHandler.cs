@@ -21,7 +21,7 @@ namespace Todo.Api.Features.Statistics
             var lastWeek = today.AddDays(-6);
 
 
-            
+            throw new NotImplementedException();
         }
     }
 }
