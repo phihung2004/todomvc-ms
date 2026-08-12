@@ -30,16 +30,22 @@ namespace Todo.Bff.Features.Reminders.Stream
                     await using var apiStream = await client.GetReminderStreamAsync(ct);
                     using var reader = new StreamReader(apiStream);
 
-                    // Đọc từng dòng Api chảy xuống, relay y nguyên xuống FE
-                    while (!reader.EndOfStream && !ct.IsCancellationRequested)
+                    // [FIX H7]: Bỏ EndOfStream. 
+                    // Luôn lặp chừng nào Client chưa ngắt kết nối (ct chưa bị huỷ).
+                    while (!ct.IsCancellationRequested)
                     {
+                        // Hàm này là Bất đồng bộ chuẩn. Nếu rớt mạng hoặc tắt tab,
+                        // nó sẽ ném OperationCanceledException bay thẳng xuống khối catch.
                         var line = await reader.ReadLineAsync(ct);
 
-                        if (line is not null)
+                        // Nếu line trả về null nghĩa là cái apiStream gốc từ Backend đã chủ động ngắt
+                        if (line is null)
                         {
-                            await ctx.Response.WriteAsync(line + "\n", ct);
-                            await ctx.Response.Body.FlushAsync(ct);
+                            break;
                         }
+
+                        await ctx.Response.WriteAsync(line + "\n", ct);
+                        await ctx.Response.Body.FlushAsync(ct);
                     }
                 }
                 // Hứng lỗi CancellationToken bị kích hoạt hủy
