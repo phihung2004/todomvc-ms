@@ -84,6 +84,8 @@ export class ReminderStore extends ComponentStore<ReminderState> {
     pending: state.pending.filter((pending) => pending.todoId !== todoId), // <-- So sánh bằng pending.todoId
   }));
 
+  //========================================================
+
   // Effect========================================================
 
   // CỤM EFFECT =========================================================
