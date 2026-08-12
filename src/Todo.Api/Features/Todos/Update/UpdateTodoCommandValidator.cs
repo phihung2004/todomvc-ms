@@ -12,9 +12,9 @@ namespace Todo.Api.Features.Todos.Update
                 .NotEmpty().WithMessage("Title can't be empty")
                 .MaximumLength(200).WithMessage("Title must 200 char MAX");
 
-            //RuleFor(x => x.DueAt).GreaterThan(DateTime.UtcNow)
-            //    .When(x => x.DueAt.HasValue)
-            //    .WithMessage("Due At can't be in the past");
+            RuleFor(x => x.DueAt).GreaterThan(DateTime.UtcNow)
+                .When(x => x.DueAt.HasValue)
+                .WithMessage("Due At can't be in the past");
         }
     }
 }
