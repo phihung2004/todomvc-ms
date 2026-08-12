@@ -112,11 +112,10 @@ export class ReminderStore extends ComponentStore<ReminderState> {
               // Thường FluentValidation trong Minimal APIs sẽ nhét lỗi vào property 'errors'
               const beErrors = error.error?.errors;
 
-              if (beErrors) {
-                // Ví dụ BE trả về: { "errors": { "Minutes": ["Snooze minutes must be between 10 and 60"] } }
-                // Lấy cái key lỗi đầu tiên ra
-                const firstErrorKey = Object.keys(beErrors)[0];
-                errorMessage = beErrors[firstErrorKey][0];
+              if (beErrors && Array.isArray(beErrors) && beErrors.length > 0) {
+                // BE custom trả về mảng object: [ { "field": "Minutes", "message": "..." } ]
+                // Đọc trực tiếp biến message của phần tử đầu tiên
+                errorMessage = beErrors[0].message;
               } else if (error.error?.title) {
                 // Lỗi chung chung của ProblemDetails
                 errorMessage = error.error.title;
