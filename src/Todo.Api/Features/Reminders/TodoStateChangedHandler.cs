@@ -11,10 +11,17 @@ namespace Todo.Api.Features.Reminders
         {
             if (notification.IsDeletedOrCompleted)
             {
-                await DB.Update<Reminder>()
-                    .Match(r => r.TodoId == notification.TodoId)
-                    .Modify(r => r.State, ReminderState.Dismissed)
-                    .ExecuteAsync(cancellationToken);
+                // Trên thì chỉ update lại thôi
+                //await DB.Update<Reminder>()
+                //    .Match(r => r.TodoId == notification.TodoId)
+                //    .Modify(r => r.State, ReminderState.Dismissed)
+                //    .ExecuteAsync(cancellationToken);
+
+                // FIX H2: Xóa cái Reminder của những Todo đã bị xóa
+                // thay vì chỉ đổi state thành Dismissed để chật Database.
+                await DB.DeleteAsync<Reminder>(
+                    r => r.TodoId == notification.TodoId,
+                    cancellation: cancellationToken);
             }
         }
     }
