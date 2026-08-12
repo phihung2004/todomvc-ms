@@ -212,7 +212,6 @@ export class TodosStore extends ComponentStore<TodosState> {
     ),
   );
 
-  // Đã được AI sửa để fix được lỗi là cần F5 để hiện update
   readonly updateTodo = this.effect<{
     id: string;
     title: string;

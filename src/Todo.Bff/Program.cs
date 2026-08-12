@@ -8,14 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Typed client:
 builder.Services.AddHttpClient<TodoApiClient>(c =>
     c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
-//builder.Services.AddHttpClient<ReminderApiClient>(c =>
-//    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
 builder.Services.AddHttpClient<ReminderApiClient>(c =>
-{
-    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!);
-    c.Timeout = Timeout.InfiniteTimeSpan; // vì client này còn dùng cho request stream dài vô hạn
-});
-
+    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
 
 // Thêm CORS cho `http://localhost:4200'
 // Mẫu dùng tren doc, nó bảo là: " default CORS policy to all controller endpoints."
