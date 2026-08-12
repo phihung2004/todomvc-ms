@@ -30,7 +30,7 @@ builder.Services.AddOpenApi();
 //builder.Services.AddAutoMapper(typeof(TodoMappings));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddCarter();
-//builder.Services.AddHostedService<ReminderScanner>();
+builder.Services.AddHostedService<ReminderScanner>(); // Nhả comment lại, vì vẫn dùng Công việc 2
 builder.Services.AddHostedService<ReminderProcessor>();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
