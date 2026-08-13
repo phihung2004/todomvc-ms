@@ -10,7 +10,8 @@ namespace Todo.Api.Features.Todos.Delete
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {  
-            app.MapDelete("/api/todos/{id}", async (string id, IMediator mediator) =>
+            // Fix L5: check cái ID 24 ký tự, để không bị trùng với câu Completed.
+            app.MapDelete("/api/todos/{id:length(24)}", async (string id, IMediator mediator) =>
             {
                 // Tạo command từ request
                 var command = new DeleteTodoCommand(id);
