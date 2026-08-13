@@ -6,10 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Typed client:
+
+// [FIX M8]: Kéo BaseUrl ra, kiểm tra null trước khi gán cho các HTTP Client
+var todoApiBaseUrl = builder.Configuration["TodoApi:BaseUrl"]
+    ?? throw new InvalidOperationException("Thiếu cấu hình: TodoApi:BaseUrl");
+
 builder.Services.AddHttpClient<TodoApiClient>(c =>
-    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
+    c.BaseAddress = new Uri(todoApiBaseUrl)); // http://localhost:5200
 builder.Services.AddHttpClient<ReminderApiClient>(c =>
-    c.BaseAddress = new Uri(builder.Configuration["TodoApi:BaseUrl"]!)); // http://localhost:5200
+    c.BaseAddress = new Uri(todoApiBaseUrl)); // http://localhost:5200
 
 // Thêm CORS cho `http://localhost:4200'
 // Mẫu dùng tren doc, nó bảo là: " default CORS policy to all controller endpoints."
