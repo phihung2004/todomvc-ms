@@ -30,10 +30,10 @@
 
       <ul class="reminder-list">
         <!-- Vòng lặp đẻ ra các Dumb Component -->
-        @for (item of store.pending$ | async; track item.id) {
+        @for (item of remindersWithTitle$ | async; track item.id) {
           <app-bell-item
             [item]="item"
-            [title]="getTodoTitle(item.todoId) | async"
+            [title]="item.title"
             (snooze)="snooze($event)"
             (dismiss)="dismiss($event)"
           ></app-bell-item>

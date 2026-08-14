@@ -11,9 +11,8 @@ export interface ReminderState {
   connected: boolean;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable() // {  providedIn: 'root', }
+// 	root — sống toàn app, sai thiết kế ComponentStore
 export class ReminderStore extends ComponentStore<ReminderState> {
   private readonly reminderApiService = inject(ReminderApiService);
 

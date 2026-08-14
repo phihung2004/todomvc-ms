@@ -16,9 +16,7 @@ export interface TodosState {
   error: string | null; // lưu thông báo lỗi
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable() // {  providedIn: 'root', }
 export class TodosStore extends ComponentStore<TodosState> {
   private readonly todoApiService = inject(TodoApiService);
   private readonly reminderStore = inject(ReminderStore);

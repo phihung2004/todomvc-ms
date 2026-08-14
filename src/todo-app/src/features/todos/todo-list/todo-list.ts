@@ -3,10 +3,12 @@ import { TodoItem } from '../todo-item/todo-item';
 import { TodosStore } from '../todos.store';
 import { AsyncPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { Footer } from '../footer/footer';
+import { TodoInput } from '../todo-input/todo-input';
 
 @Component({
   selector: 'app-todo-list',
-  imports: [TodoItem, AsyncPipe],
+  imports: [TodoItem, AsyncPipe, Footer, TodoInput],
   templateUrl: './todo-list.html',
 })
 export class TodoList implements OnInit {
