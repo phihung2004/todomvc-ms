@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { TodoItem } from '../todo-item/todo-item';
 import { TodosStore } from '../todos.store';
 import { AsyncPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { TodoInput } from '../todo-input/todo-input';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-todo-list',
@@ -14,6 +15,7 @@ import { TodoInput } from '../todo-input/todo-input';
 export class TodoList implements OnInit {
   store = inject(TodosStore);
   route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef); // thêm dòng này
 
   ngOnInit(): void {
     // Kéo toàn bộ data 1 lần duy nhất vào State
@@ -21,10 +23,12 @@ export class TodoList implements OnInit {
 
     // Nghe URL đổi: Chỉ cập nhật trạng thái Filter trong store.
     // Selector `filteredTodos$` sẽ tự động chạy và lọc list trên UI (0ms latency, không gọi BE).
-    this.route.paramMap.subscribe((param) => {
-      const currentFilter = param.get('filter') as 'all' | 'active' | 'completed';
-      this.store.setFilter(currentFilter || 'all');
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef)) // truyền destroyRef vào
+      .subscribe((param) => {
+        const currentFilter = param.get('filter') as 'all' | 'active' | 'completed';
+        this.store.setFilter(currentFilter || 'all');
+      });
   }
 
   deleteTodo(id: string): void {
