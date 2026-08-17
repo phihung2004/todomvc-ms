@@ -29,9 +29,12 @@ export class TodoInput {
       return;
     }
 
+    // ÉP KIỂU MÚI GIỜ: Chuyển giờ Local thành chuỗi chuẩn UTC (ISO 8601)
+    const parsedDueAt = dueAt ? new Date(dueAt).toISOString() : undefined;
+
     this.store.createTodo({
       title,
-      dueAt: dueAt ? dueAt : undefined,
+      dueAt: parsedDueAt,
     });
 
     // Đừng tự xóa trắng ô input vội.

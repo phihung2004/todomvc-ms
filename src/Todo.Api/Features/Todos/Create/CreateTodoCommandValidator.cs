@@ -15,12 +15,12 @@ namespace Todo.Api.Features.Todos.Create
             //RuleFor(x => x.Postcode).Must(BeAValidPostcode).WithMessage("Please specify a valid postcode");
 
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Title can't be empty, error code: 67")
-                .MaximumLength(200).WithMessage("Title must 200 char MAX, skibidi");
+                .NotEmpty().WithMessage("Title can't be empty")
+                .MaximumLength(200).WithMessage("Title must 200 char MAX");
 
-            RuleFor(x => x.DueAt).GreaterThan(DateTime.UtcNow)
-                .When(x => x.DueAt.HasValue)
-                .WithMessage("Due At can't be in the past LMAO");
+            //RuleFor(x => x.DueAt).GreaterThan(DateTime.UtcNow)
+            //    .When(x => x.DueAt.HasValue)
+            //    .WithMessage("Due At can't be in the past LMAO");
         }
 
 

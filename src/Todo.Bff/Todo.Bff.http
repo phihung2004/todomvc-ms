@@ -1,30 +1,46 @@
-@BffUrl = http://localhost:5100/bff/todos
+@HostAddress = http://localhost:5100
 
-### 1. Lấy toàn bộ Todo
-GET {{BffUrl}}
+### =========================================
+### 1. TODOS API TEST CASES
+### =========================================
+
+### Lấy toàn bộ danh sách Todo (Tùy chọn: filter=all|active|completed)
+GET {{HostAddress}}/bff/todos
 Accept: application/json
 
-### 2. Tạo mới 1 Todo (Test xem validation 400 có ném về đúng không)
-POST {{BffUrl}}
+---
+
+### Tạo mới Todo (Lỗi 400 - Test Validation Title rỗng)
+POST {{HostAddress}}/bff/todos
 Content-Type: application/json
 
 {
   "title": ""
 }
 
-###
+---
 
-POST {{BffUrl}}
+### Tạo mới Todo (Thành công 200)
+POST {{HostAddress}}/bff/todos
 Content-Type: application/json
+
 {
-  "title":"Test M3 cho xong"
+  "title": "Test M3 cho xong"
 }
 
-### 3. Lấy Todo theo ID (Copy cái ID vừa tạo ở trên dán vào đây)
-GET {{BffUrl}}/id-cua-todo-vua-tao
+---
 
-### 4. Update Todo
-PUT {{BffUrl}}/id-cua-todo-vua-tao
+# Gán ID của Todo vừa tạo vào biến này để test các request dưới
+@TodoId = 6a5e40dc027cf5045e0e0ac6
+
+### Lấy chi tiết Todo theo ID
+GET {{HostAddress}}/bff/todos/{{TodoId}}
+Accept: application/json
+
+---
+
+### Cập nhật Todo (Đổi Title và set IsCompleted = true)
+PUT {{HostAddress}}/bff/todos/{{TodoId}}
 Content-Type: application/json
 
 {
@@ -32,13 +48,26 @@ Content-Type: application/json
   "isCompleted": true
 }
 
-### 5. Toggle (Lưu ý: API của ông đang map là PATCH /{id})
-PATCH {{BffUrl}}/6a5f7ef9471fa92bd6bf3853/toggle
+---
 
-### 6. Xóa Todo
-DELETE {{BffUrl}}/completed
+### Đảo ngược trạng thái Todo (Toggle)
+PATCH {{HostAddress}}/bff/todos/{{TodoId}}/toggle
+
+---
+
+### Xóa 1 Todo cụ thể
+DELETE {{HostAddress}}/bff/todos/{{TodoId}}
+
+---
+
+### Dọn rác: Xóa toàn bộ Todo đã hoàn thành
+DELETE {{HostAddress}}/bff/todos/completed
 
 
+### =========================================
+### 2. STATISTICS API TEST CASES
+### =========================================
 
-### 6. Xóa Todo
-DELETE {{BffUrl}}/6a5e40dc027cf5045e0e0ac6
+### Lấy dữ liệu thống kê tổng quan (Overview)
+GET {{HostAddress}}/bff/stats/overview
+Accept: application/json

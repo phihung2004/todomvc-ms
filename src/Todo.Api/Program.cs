@@ -8,19 +8,26 @@ using Todo.Api.Common.Exceptions;
 using Todo.Api.Entities;
 using Todo.Api.Features.Reminders;
 using Todo.Api.Features.Reminders.Messaging;
-using Todo.Api.Features.Todos;
 
 
 // Khai báo builder, đầu tiên và nobrainer là nổ cái này
 var builder = WebApplication.CreateBuilder(args);
 
-var defaultConnectionString =
-   builder.Configuration.GetValue<string>("ConnectionStrings:MongoDB");
+//var defaultConnectionString =
+//   builder.Configuration.GetValue<string>("ConnectionStrings:MongoDB");
+// [FIX M8]: Đọc cấu hình và chủ động văng lỗi rõ ràng nếu thiếu (Fail-Fast)
+var defaultConnectionString = builder.Configuration.GetValue<string>("ConnectionStrings:MongoDB")
+    ?? throw new InvalidOperationException("Thiếu cấu hình: ConnectionStrings:MongoDB");
+
 var settings = MongoClientSettings.FromConnectionString(defaultConnectionString);
 //Console.WriteLine(defaultConnectionString);
 
-var sbConnectionString = builder.Configuration.GetValue<string>("ConnectionStrings:ServiceBus");
+//var sbConnectionString = builder.Configuration.GetValue<string>("ConnectionStrings:ServiceBus");
+// [FIX M8]: Tương tự cho ServiceBus
+var sbConnectionString = builder.Configuration.GetValue<string>("ConnectionStrings:ServiceBus")
+    ?? throw new InvalidOperationException("Thiếu cấu hình: ConnectionStrings:ServiceBus");
 builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
+
 builder.Services.AddSingleton<ReminderScheduler>();
 builder.Services.AddSingleton<ReminderStreamChannel>();
 
@@ -30,7 +37,7 @@ builder.Services.AddOpenApi();
 //builder.Services.AddAutoMapper(typeof(TodoMappings));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddCarter();
-//builder.Services.AddHostedService<ReminderScanner>();
+builder.Services.AddHostedService<ReminderScanner>(); // Nhả comment lại, vì vẫn dùng Công việc 2
 builder.Services.AddHostedService<ReminderProcessor>();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();

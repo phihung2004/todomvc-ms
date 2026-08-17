@@ -2,7 +2,7 @@
   <div class="header-info">
     <!-- Dùng dấu () vì title và item giờ là signals -->
     <span class="todo-title">{{ title() }}</span>
-    <span class="due-date">Hẹn lúc: {{ item().dueAt | date: 'short' }}</span>
+    <span class="due-date">Due at: {{ item().dueAt | date: 'short' }}</span>
   </div>
 
   <div class="actions">

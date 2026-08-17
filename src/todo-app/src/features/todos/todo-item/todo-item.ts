@@ -43,12 +43,15 @@ export class TodoItem {
       return;
     }
 
+    // ÉP KIỂU MÚI GIỜ KHI UPDATE
+    const parsedDueAt = newDate ? new Date(newDate).toISOString() : undefined;
+
     // code gà: this.itemToDelete.emit(this.todo().id, newTitle, this.todo().isCompleted);
     this.itemToEdit.emit({
       id: this.todo().id,
       title: trimmedTitle,
       isCompleted: this.todo().isCompleted,
-      dueAt: newDate ? newDate : undefined,
+      dueAt: parsedDueAt,
     });
 
     this.isEditing = false;

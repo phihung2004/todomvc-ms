@@ -41,6 +41,10 @@ public class UpdateTodoHandler : IRequestHandler<UpdateTodoCommand, bool>
                 await _reminderScheduler.CancelAsync(existing.ReminderSequenceNumber.Value, cancellationToken);
             }
 
+            // FIX C2: Dọn sạch Reminder cũ của Todo này dưới DB.
+            // Phải dọn TRƯỚC khi Schedule cái mới để tránh Race Condition với ASB.
+            await DB.DeleteAsync<Reminder>(r => r.TodoId == request.Id, cancellation: cancellationToken);
+
             // Hẹn Schedule ASB lại bằng cái DueAt mới
             // Update luôn cái sequence number mới luôn
             if (request.DueAt.HasValue && !request.IsCompleted)
