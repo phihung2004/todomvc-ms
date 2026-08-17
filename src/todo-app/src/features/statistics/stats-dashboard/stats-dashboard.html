@@ -1,12 +1,12 @@
 <section class="todoapp stats-container">
   <!-- Header -->
   <header class="header">
-    <h1>Thống Kê</h1>
-    <a routerLink="/all" class="back-link">&larr; Về TodoList</a>
+    <h1>Statistics</h1>
+    <a routerLink="/all" class="back-link">&larr; Back to TodoList</a>
   </header>
 
   <!-- Loading State -->
-  <div *ngIf="store.loading() && !store.overview()" class="loading-state">Đang tải dữ liệu...</div>
+  <div *ngIf="store.loading() && !store.overview()" class="loading-state">Loading data...</div>
 
   <!-- Main Dashboard -->
   <div *ngIf="store.overview() as stats" class="dashboard-main">
@@ -14,25 +14,25 @@
     <div class="cards-grid">
       <div class="stat-card card-total">
         <div class="card-value">{{ stats.total }}</div>
-        <div class="card-label">Tổng số</div>
+        <div class="card-label">Total</div>
       </div>
       <div class="stat-card card-active">
         <div class="card-value">{{ stats.active }}</div>
-        <div class="card-label">Đang làm</div>
+        <div class="card-label">Active</div>
       </div>
       <div class="stat-card card-completed">
         <div class="card-value">{{ stats.completed }}</div>
-        <div class="card-label">Đã xong</div>
+        <div class="card-label">Completed</div>
       </div>
       <div class="stat-card card-overdue">
         <div class="card-value">{{ stats.overdue }}</div>
-        <div class="card-label">Quá hạn</div>
+        <div class="card-label">Overdue</div>
       </div>
     </div>
 
     <!-- Thanh tỷ lệ hoàn thành (Completion Rate) -->
     <div class="progress-section">
-      <h3 class="progress-title">Tỷ lệ hoàn thành: {{ stats.completionRate }}%</h3>
+      <h3 class="progress-title">Completion Rate: {{ stats.completionRate }}%</h3>
       <div class="progress-track">
         <div class="progress-bar" [style.width.%]="stats.completionRate"></div>
       </div>
@@ -40,7 +40,7 @@
 
     <!-- Biểu đồ 7 ngày (CSS Flexbox) -->
     <div>
-      <h3 class="chart-title">Hoàn thành 7 ngày qua</h3>
+      <h3 class="chart-title">Completed in the Last 7 Days</h3>
 
       <div class="chart-container">
         <ng-container *ngFor="let day of stats.completedByDay">

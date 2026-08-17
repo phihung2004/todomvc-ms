@@ -8,6 +8,7 @@ namespace Todo.Api.Features.Reminders
     // RỒi sẽ gửi lên queue với thời gian là DueAt.
     public class ReminderScheduler
     {
+
         private readonly ServiceBusSender _sender;
 
         public ReminderScheduler(ServiceBusClient sbClient)

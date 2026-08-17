@@ -143,6 +143,9 @@ export class ReminderStore extends ComponentStore<ReminderState> {
       // Vừa bấm tắt là xóa luôn cái popup trên màn hình
       tap((id) => this.removeReminder(id)),
 
+      // Concat:
+      // Switch: 5 > 1
+
       // Gọi API báo cho BE biết là đã tắt
       // Làm tuần tự theo thứ tự request người dùng ấn
       concatMap((id) =>

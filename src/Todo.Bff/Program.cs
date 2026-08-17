@@ -5,7 +5,6 @@ using Todo.Bff.Features.Todos;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Typed client:
 
 // [FIX M8]: Kéo BaseUrl ra, kiểm tra null trước khi gán cho các HTTP Client
@@ -32,18 +31,13 @@ builder.Services.AddCors(option =>
         });
     });
 
-
-
 builder.Services.AddCarter();
 
 var app  = builder.Build();
-
 
 // Xài CORS trước Carter
 app.UseCors();
 
 app.MapCarter();
-
-
 
 app.Run();  

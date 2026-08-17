@@ -25,7 +25,9 @@ namespace Todo.Api.Features.Todos.Delete
 
             if (item == null) return false; // Trả về false để Endpoint biết là 404 Not Found
 
-            // [CORE FIX H2]: Hủy vé ASB trước khi Todo bị xóa sổ
+
+            // Todo: tạo 1 handle riêng chỉ làm cho việc đốt lịch
+            // [FIX H2]: Hủy vé ASB trước khi Todo bị xóa
             if (item.ReminderSequenceNumber.HasValue)
             {
                 await _reminderScheduler.CancelAsync(item.ReminderSequenceNumber.Value, cancellationToken);
@@ -33,7 +35,7 @@ namespace Todo.Api.Features.Todos.Delete
 
             await item.DeleteAsync(cancellation: cancellationToken);
 
-            // dùng thằng Meiator để mà hú event để bên Reminderchinhr lại reminder item mỗi khi todo bị xóa
+            // dùng thằng Meiator để mà hú event để bên Reminder chỉnh lại reminder item mỗi khi todo bị xóa
             await _mediator.Publish(new TodoStateChangedNotification
             {
                 TodoId = request.Id,

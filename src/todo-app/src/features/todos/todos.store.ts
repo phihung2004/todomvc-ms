@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { TodoApiService, TodoDto } from './todo-api.service';
 import { ComponentStore } from '@ngrx/component-store';
 import { tapResponse } from '@ngrx/operators';
-import { switchMap, concatMap, withLatestFrom, tap, EMPTY } from 'rxjs';
+import { switchMap, concatMap, withLatestFrom, tap, EMPTY, mergeMap } from 'rxjs';
 import { ReminderStore } from '../reminders/reminder.store';
 
 export type FilterType = 'all' | 'active' | 'completed';
@@ -191,7 +191,7 @@ export class TodosStore extends ComponentStore<TodosState> {
 
               // Bóc tách JSON ProblemDetails của BE
               // Thường Angular HttpClient sẽ nhét cái body lỗi vào properties `error`
-              // Khớp với code BE của ông: problemDetails.Extensions["errors"]
+
               const beErrors = error.error?.errors;
 
               if (beErrors && beErrors.length > 0) {
@@ -271,36 +271,60 @@ export class TodosStore extends ComponentStore<TodosState> {
   // );
 
   // Khai báo một Effect, nhận đầu vào là chuỗi string (chính là cái ống id$)
+  // readonly toggleTodo = this.effect<string>((id$) =>
+  //   // Bắt đầu đưa cái ống id$ vào băng chuyền xử lý
+  //   id$.pipe(
+  //     // Trạm 1: tap - Đứng nhìn và làm việc vặt
+  //     // tap() giống như một thằng bảo vệ đứng nhìn cái ID đi qua. Nó lấy cái ID đó,
+  //     // gọi ngay anh Công nhân (toggleSingleTodoInStore) để đổi màu UI lập tức.
+  //     // Xong việc, nó thả cái ID đi tiếp xuống Trạm 2.
+  //     tap((id) => this.toggleSingleTodoInStore(id)),
+
+  //     // Trạm 2: concatMap - Xếp hàng gọi điện (API)
+  //     // Khi cái ID rơi xuống đây, nó bắt đầu gọi điện lên Server Backend.
+  //     // concatMap có tính năng "Xếp hàng": Nếu ông bấm 3 nút liên tục, nó sẽ đợi API thứ 1 gọi xong
+  //     // mới gọi tiếp API thứ 2, không bao giờ bị đè lệnh.
+  //     concatMap((id) =>
+  //       this.todoApiService.toggleTodo(id).pipe(
+  //         // Gọi HTTP Request
+
+  //         // Trạm 3: tapResponse - Đón kết quả từ Server trả về
+  //         tapResponse(
+  //           // Nếu API báo 204 Thành công: Hê hê, tao lừa user update UI từ bước 1 rồi, nên giờ chả cần làm gì cả.
+  //           () => {
+  //             console.log('Đã đồng bộ trạng thái Toggle với Server');
+  //             this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+  //             this.reminderStore.removeReminderByTodoId(id);
+  //           },
+
+  //           // Nếu API báo LỖI (Vd: sập mạng): Chết dở!
+  //           (error) => {
+  //             console.error('Error toggling todo:', error);
+  //             // Phải gọi anh Công nhân ra bốc ngược lại kho (Lật UI lại như cũ) để user biết mạng đang lag.
+  //             this.toggleSingleTodoInStore(id);
+  //           },
+  //         ),
+  //       ),
+  //     ),
+  //   ),
+  // );
+
   readonly toggleTodo = this.effect<string>((id$) =>
-    // Bắt đầu đưa cái ống id$ vào băng chuyền xử lý
     id$.pipe(
-      // Trạm 1: tap - Đứng nhìn và làm việc vặt
-      // tap() giống như một thằng bảo vệ đứng nhìn cái ID đi qua. Nó lấy cái ID đó,
-      // gọi ngay anh Công nhân (toggleSingleTodoInStore) để đổi màu UI lập tức.
-      // Xong việc, nó thả cái ID đi tiếp xuống Trạm 2.
       tap((id) => this.toggleSingleTodoInStore(id)),
 
-      // Trạm 2: concatMap - Xếp hàng gọi điện (API)
-      // Khi cái ID rơi xuống đây, nó bắt đầu gọi điện lên Server Backend.
-      // concatMap có tính năng "Xếp hàng": Nếu ông bấm 3 nút liên tục, nó sẽ đợi API thứ 1 gọi xong
-      // mới gọi tiếp API thứ 2, không bao giờ bị đè lệnh.
-      concatMap((id) =>
+      // Đổi concatMap -> mergeMap: các request theo id khác nhau độc lập nhau,
+      // không cần xếp hàng chờ nhau nữa -> bulk toggle nhanh hơn nhiều lần.
+      mergeMap((id) =>
         this.todoApiService.toggleTodo(id).pipe(
-          // Gọi HTTP Request
-
-          // Trạm 3: tapResponse - Đón kết quả từ Server trả về
           tapResponse(
-            // Nếu API báo 204 Thành công: Hê hê, tao lừa user update UI từ bước 1 rồi, nên giờ chả cần làm gì cả.
             () => {
               console.log('Đã đồng bộ trạng thái Toggle với Server');
-              this.reminderStore.loadUpcoming(); // Thành công: Gọi ReminderStore loadUpcoming() để cập nhật danh sách nhắc nhở
+              this.reminderStore.loadUpcoming();
               this.reminderStore.removeReminderByTodoId(id);
             },
-
-            // Nếu API báo LỖI (Vd: sập mạng): Chết dở!
             (error) => {
               console.error('Error toggling todo:', error);
-              // Phải gọi anh Công nhân ra bốc ngược lại kho (Lật UI lại như cũ) để user biết mạng đang lag.
               this.toggleSingleTodoInStore(id);
             },
           ),
