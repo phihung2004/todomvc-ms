@@ -2,6 +2,7 @@
 using MongoDB.Entities;
 using System.Text.Json;
 using Todo.Api.Entities;
+using Todo.Api.Features.Reminders.Delivery;
 using Todo.Api.Features.Reminders.Messaging;
 
 namespace Todo.Api.Features.Reminders
@@ -11,11 +12,16 @@ namespace Todo.Api.Features.Reminders
         private readonly ServiceBusClient _sbClient;
         private ServiceBusProcessor? _processor;
         private readonly ReminderStreamChannel _streamChannel;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public ReminderProcessor(ServiceBusClient sbClient, ReminderStreamChannel streamChannel)
+        public ReminderProcessor(
+            ServiceBusClient sbClient,
+            ReminderStreamChannel streamChannel,
+            IServiceScopeFactory scopeFactory)
         {
             _sbClient = sbClient;
             _streamChannel = streamChannel;
+            _scopeFactory = scopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,22 +33,18 @@ namespace Todo.Api.Features.Reminders
 
             await _processor.StartProcessingAsync(stoppingToken);
 
-            // ExecuteAsync return là stop luôn BackgroundService, nên phải treo ở đây
-            // để processor (chạy nền riêng) còn cơ hội tiếp tục sống. 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         private async Task HandleMessageAsync(ProcessMessageEventArgs args)
         {
             var payload = JsonSerializer.Deserialize<ReminderDueMessage>(args.Message.Body);
-            // Ý nghĩa: "tôi (dev) biết chắc biến này không null tại đây, compiler đừng cảnh báo nữa".
             var todoId = payload!.TodoId;
 
             var todo = await DB.Find<TodoItem>()
                .MatchID(todoId)
                .ExecuteFirstAsync(args.CancellationToken);
 
-            // Todo không tồn tại (đã bị xóa) hoặc đã hoàn thành trước khi tới hạn -> bỏ qua
             if (todo is null || todo.IsCompleted)
             {
                 Console.WriteLine($"[ReminderProcessor] Skipped TodoId={todoId} (not found or already completed)");
@@ -50,14 +52,15 @@ namespace Todo.Api.Features.Reminders
                 return;
             }
 
-            // Check đã có Reminder cho Todo này chưa, tránh tạo trùng nếu message bị xử lý lại
-            var alreadyExists = await DB.Find<Reminder>()
+            var existingReminder = await DB.Find<Reminder>()
                 .Match(r => r.TodoId == todoId)
-                .ExecuteAnyAsync(args.CancellationToken);
+                .ExecuteFirstAsync(args.CancellationToken);
 
-            if (!alreadyExists)
+            Reminder reminder;
+
+            if (existingReminder is null)
             {
-                var reminder = new Reminder
+                reminder = new Reminder
                 {
                     TodoId = todoId,
                     DueAt = todo.DueAt!.Value,
@@ -70,17 +73,33 @@ namespace Todo.Api.Features.Reminders
                     await reminder.SaveAsync(cancellation: args.CancellationToken);
                     Console.WriteLine($"[ReminderProcessor] Created Reminder for TodoId={todoId} at {DateTime.Now:HH:mm:ss}");
 
-                    // Hú FE qua SSE
                     _streamChannel.NotifyNewReminder();
                 }
                 catch (MongoDB.Driver.MongoWriteException ex) when (ex.WriteError.Category == MongoDB.Driver.ServerErrorCategory.DuplicateKey)
                 {
                     Console.WriteLine($"[ReminderProcessor] TodoId={todoId} already has a Reminder (duplicate key, safely ignored)");
+                    await args.CompleteMessageAsync(args.Message);
+                    return;
                 }
             }
             else
             {
-                Console.WriteLine($"[ReminderProcessor] TodoId={todoId} already has a Reminder, skipping");
+                Console.WriteLine($"[ReminderProcessor] TodoId={todoId} already has a Reminder, skipping create");
+                reminder = existingReminder;
+            }
+
+            // MỚI: gọi delivery — idempotent check nằm trong ReminderDeliveryService,
+            // nên gọi thoải mái ở đây mà không sợ gửi trùng mail cho Reminder đã Sent.
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var deliveryService = scope.ServiceProvider.GetRequiredService<ReminderDeliveryService>();
+                await deliveryService.SendAsync(reminder, todo, args.CancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Không throw ra ngoài — lỗi delivery không được làm ASB retry lại việc tạo Reminder.
+                Console.WriteLine($"[ReminderProcessor] Delivery error for TodoId={todoId}: {ex.Message}");
             }
 
             await args.CompleteMessageAsync(args.Message);

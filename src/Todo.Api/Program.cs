@@ -7,6 +7,7 @@ using Todo.Api.Common.Behavior;
 using Todo.Api.Common.Exceptions;
 using Todo.Api.Entities;
 using Todo.Api.Features.Reminders;
+using Todo.Api.Features.Reminders.Delivery;
 using Todo.Api.Features.Reminders.Messaging;
 
 
@@ -30,6 +31,26 @@ builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
 
 builder.Services.AddSingleton<ReminderScheduler>();
 builder.Services.AddSingleton<ReminderStreamChannel>();
+
+// ===== MỚI: Email delivery =====
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+
+var emailOptions = builder.Configuration.GetSection("Email").Get<EmailOptions>()
+    ?? throw new InvalidOperationException("Thiếu cấu hình: Email");
+
+builder.Services
+    .AddFluentEmail(emailOptions.FromEmail, emailOptions.FromName)
+    .AddSmtpSender(new System.Net.Mail.SmtpClient(emailOptions.SmtpHost, emailOptions.SmtpPort)
+    {
+        EnableSsl = emailOptions.EnableSsl,
+        Credentials = string.IsNullOrEmpty(emailOptions.SmtpUsername)
+            ? null
+            : new System.Net.NetworkCredential(emailOptions.SmtpUsername, emailOptions.SmtpPassword)
+    });
+
+builder.Services.AddScoped<IReminderDeliveryChannel, EmailReminderChannel>();
+builder.Services.AddScoped<ReminderDeliveryService>();
+// ===== hết phần MỚI =====
 
 
 // Thêm service cho builder bên dưới==================

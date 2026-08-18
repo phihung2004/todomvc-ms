@@ -7,5 +7,16 @@ services:
       - 27017:27017
     volumes:
       - mongo_data:/data/db
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    hostname: smtp4dev
+    container_name: todo_smtp4dev
+    ports:
+      - 5000:80     # Web UI xem mail: http://localhost:5000
+      - 2525:25     # SMTP port, khớp với Email:SmtpPort trong appsettings.Development.json
+    restart: unless-stopped
+
+    
 volumes:
   mongo_data:
